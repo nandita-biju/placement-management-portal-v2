@@ -2,6 +2,8 @@ from flask import Flask
 from config import Config
 from extensions import db, bcrypt
 from models.user import User
+from flask_jwt_extended import JWTManager
+from routes.auth import auth_bp
 
 app = Flask(__name__)
 
@@ -9,6 +11,7 @@ app.config.from_object(Config)
 
 db.init_app(app)
 bcrypt.init_app(app)
+jwt = JWTManager(app)
 
 with app.app_context():
     db.create_all()
@@ -28,6 +31,9 @@ with app.app_context():
         db.session.commit()
 
         print("Admin user created successfully!")
+
+app.register_blueprint(auth_bp, url_prefix="/auth")
+
 
 @app.route("/")
 def home():
