@@ -6,4 +6,4 @@ class Config:
     SQLALCHEMY_DATABASE_URI = "sqlite:///" + os.path.join(BASE_DIR, "placement_portal.db")
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SECRET_KEY = "your-secret-key"
-    JWT_SECRET_KEY = "super-secret-jwt-key"
+    JWT_SECRET_KEY = "this-is-a-very-secure-secret-key-for-placement-portal-project"
