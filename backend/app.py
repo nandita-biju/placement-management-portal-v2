@@ -13,6 +13,7 @@ from models.application import Application
 
 from routes.student import student_bp
 from routes.company import company_bp
+from routes.job import job_bp
 
 app = Flask(__name__)
 
@@ -45,6 +46,7 @@ app.register_blueprint(auth_bp, url_prefix="/auth")
 app.register_blueprint(dashboard_bp, url_prefix="/dashboard")
 app.register_blueprint(student_bp, url_prefix="/student")
 app.register_blueprint(company_bp, url_prefix="/company")
+app.register_blueprint(job_bp, url_prefix="/jobs")
 
 @app.route("/")
 def home():
