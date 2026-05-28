@@ -4,6 +4,7 @@ from extensions import db, bcrypt
 from models.user import User
 from flask_jwt_extended import JWTManager
 from routes.auth import auth_bp
+from routes.dashboard import dashboard_bp
 
 app = Flask(__name__)
 
@@ -33,7 +34,7 @@ with app.app_context():
         print("Admin user created successfully!")
 
 app.register_blueprint(auth_bp, url_prefix="/auth")
-
+app.register_blueprint(dashboard_bp, url_prefix="/dashboard")
 
 @app.route("/")
 def home():
