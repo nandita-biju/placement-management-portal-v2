@@ -6,6 +6,11 @@ from flask_jwt_extended import JWTManager
 from routes.auth import auth_bp
 from routes.dashboard import dashboard_bp
 
+from models.student import Student
+from models.company import Company
+from models.job import JobPosition
+from models.application import Application
+
 app = Flask(__name__)
 
 app.config.from_object(Config)
