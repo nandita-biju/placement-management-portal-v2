@@ -9,6 +9,7 @@ from flask_jwt_extended import (
 from extensions import db
 
 from models.student import Student
+from models.company import Company
 from models.job import JobPosition
 from models.application import Application
 
@@ -106,3 +107,50 @@ def my_applications():
         })
 
     return jsonify(output), 200
+
+@application_bp.route(
+    "/<int:application_id>/status",
+    methods=["PATCH"]
+)
+@jwt_required()
+def update_application_status(application_id):
+
+    claims = get_jwt()
+
+    if claims["role"] != "company":
+        return jsonify({
+            "message": "Access denied"
+        }), 403
+
+    application = Application.query.get(application_id)
+
+    if not application:
+        return jsonify({
+            "message": "Application not found"
+        }), 404
+
+    user_id = int(get_jwt_identity())
+
+    company = Company.query.filter_by(
+        user_id=user_id
+    ).first()
+
+    if not company:
+        return jsonify({
+            "message": "Company profile not found"
+        }), 404
+
+    if application.job.company_id != company.id:
+        return jsonify({
+            "message": "Unauthorized"
+        }), 403
+
+    data = request.get_json()
+
+    application.status = data["status"]
+
+    db.session.commit()
+
+    return jsonify({
+        "message": "Application status updated successfully"
+    }), 200
