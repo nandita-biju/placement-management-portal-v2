@@ -154,3 +154,44 @@ def update_application_status(application_id):
     return jsonify({
         "message": "Application status updated successfully"
     }), 200
+
+@application_bp.route("/my-applications", methods=["GET"])
+@jwt_required()
+def get_my_applications():
+
+    claims = get_jwt()
+
+    if claims["role"] != "student":
+        return jsonify({
+            "message": "Access denied"
+        }), 403
+
+    user_id = int(get_jwt_identity())
+
+    from models.student import Student
+
+    student = Student.query.filter_by(
+        user_id=user_id
+    ).first()
+
+    if not student:
+        return jsonify({
+            "message": "Student profile not found"
+        }), 404
+
+    applications = Application.query.filter_by(
+        student_id=student.id
+    ).all()
+
+    output = []
+
+    for application in applications:
+
+        output.append({
+            "application_id": application.id,
+            "job_title": application.job.title,
+            "status": application.status,
+            "applied_at": application.applied_at
+        })
+
+    return jsonify(output), 200
