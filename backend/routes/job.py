@@ -10,6 +10,7 @@ from extensions import db
 
 from models.company import Company
 from models.job import JobPosition
+from models.application import Application
 
 
 job_bp = Blueprint("job", __name__)
@@ -117,6 +118,57 @@ def get_my_jobs():
             "salary": job.salary,
             "skills_required": job.skills_required,
             "status": job.status
+        })
+
+    return jsonify(output), 200
+
+@job_bp.route("/<int:job_id>/applications", methods=["GET"])
+@jwt_required()
+def get_job_applications(job_id):
+
+    claims = get_jwt()
+
+    if claims["role"] != "company":
+        return jsonify({
+            "message": "Access denied"
+        }), 403
+
+    user_id = int(get_jwt_identity())
+
+    company = Company.query.filter_by(
+        user_id=user_id
+    ).first()
+
+    if not company:
+        return jsonify({
+            "message": "Company profile not found"
+        }), 404
+
+    job = JobPosition.query.filter_by(
+        id=job_id,
+        company_id=company.id
+    ).first()
+
+    if not job:
+        return jsonify({
+            "message": "Job not found"
+        }), 404
+
+    applications = Application.query.filter_by(
+        job_id=job_id
+    ).all()
+
+    output = []
+
+    for application in applications:
+
+        output.append({
+            "application_id": application.id,
+            "student_name": application.student.full_name,
+            "education": application.student.education,
+            "skills": application.student.skills,
+            "resume_link": application.student.resume_link,
+            "status": application.status
         })
 
     return jsonify(output), 200
