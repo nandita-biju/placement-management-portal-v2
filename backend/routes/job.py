@@ -38,10 +38,10 @@ def create_job():
             "message": "Company profile not found"
         }), 404
 
-    '''if company.approval_status != "approved":
+    if company.approval_status != "approved":
         return jsonify({
             "message": "Company not approved by admin"
-        }), 403'''
+        }), 403
 
     data = request.get_json()
 

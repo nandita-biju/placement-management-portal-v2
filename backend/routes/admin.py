@@ -5,6 +5,8 @@ from flask_jwt_extended import (
     get_jwt
 )
 
+from extensions import db
+
 from models.student import Student
 from models.company import Company
 from models.job import JobPosition
@@ -52,7 +54,8 @@ def get_companies():
             "id": company.id,
             "company_name": company.company_name,
             "industry": company.industry,
-            "location": company.location
+            "location": company.location,
+            "approval_status": company.approval_status
         })
 
     return jsonify(output), 200
@@ -82,3 +85,29 @@ def get_students():
         })
 
     return jsonify(output), 200
+
+@admin_bp.route("/company/<int:company_id>/approve", methods=["PATCH"])
+@jwt_required()
+def approve_company(company_id):
+
+    claims = get_jwt()
+
+    if claims["role"] != "admin":
+        return jsonify({
+            "message": "Access denied"
+        }), 403
+
+    company = Company.query.get(company_id)
+
+    if not company:
+        return jsonify({
+            "message": "Company not found"
+        }), 404
+
+    company.approval_status = "approved"
+
+    db.session.commit()
+
+    return jsonify({
+        "message": "Company approved successfully"
+    }), 200
