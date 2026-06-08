@@ -79,3 +79,44 @@ def get_all_jobs():
         })
 
     return jsonify(output), 200
+
+@job_bp.route("/my-jobs", methods=["GET"])
+@jwt_required()
+def get_my_jobs():
+
+    claims = get_jwt()
+
+    if claims["role"] != "company":
+        return jsonify({
+            "message": "Access denied"
+        }), 403
+
+    user_id = int(get_jwt_identity())
+
+    company = Company.query.filter_by(
+        user_id=user_id
+    ).first()
+
+    if not company:
+        return jsonify({
+            "message": "Company profile not found"
+        }), 404
+
+    jobs = JobPosition.query.filter_by(
+        company_id=company.id
+    ).all()
+
+    output = []
+
+    for job in jobs:
+
+        output.append({
+            "id": job.id,
+            "title": job.title,
+            "description": job.description,
+            "salary": job.salary,
+            "skills_required": job.skills_required,
+            "status": job.status
+        })
+
+    return jsonify(output), 200
