@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, request
 
 from flask_jwt_extended import (
     jwt_required,
@@ -111,3 +111,57 @@ def approve_company(company_id):
     return jsonify({
         "message": "Company approved successfully"
     }), 200
+
+@admin_bp.route("/students/search", methods=["GET"])
+@jwt_required()
+def search_students():
+
+    claims = get_jwt()
+
+    if claims["role"] != "admin":
+        return jsonify({"message": "Access denied"}), 403
+
+    skill = request.args.get("skill")
+
+    students = Student.query.filter(
+        Student.skills.ilike(f"%{skill}%")
+    ).all()
+
+    output = []
+
+    for student in students:
+        output.append({
+            "id": student.id,
+            "full_name": student.full_name,
+            "skills": student.skills,
+            "education": student.education
+        })
+
+    return jsonify(output), 200
+
+@admin_bp.route("/companies/search", methods=["GET"])
+@jwt_required()
+def search_companies():
+
+    claims = get_jwt()
+
+    if claims["role"] != "admin":
+        return jsonify({"message": "Access denied"}), 403
+
+    industry = request.args.get("industry")
+
+    companies = Company.query.filter(
+        Company.industry.ilike(f"%{industry}%")
+    ).all()
+
+    output = []
+
+    for company in companies:
+        output.append({
+            "id": company.id,
+            "company_name": company.company_name,
+            "industry": company.industry,
+            "location": company.location
+        })
+
+    return jsonify(output), 200
