@@ -165,3 +165,75 @@ def search_companies():
         })
 
     return jsonify(output), 200
+
+@admin_bp.route("/approve-drive/<int:job_id>", methods=["PUT"])
+@jwt_required()
+def approve_drive(job_id):
+
+    claims = get_jwt()
+
+    if claims["role"] != "admin":
+        return jsonify({"message": "Access denied"}), 403
+
+    job = JobPosition.query.get(job_id)
+
+    if not job:
+        return jsonify({"message": "Drive not found"}), 404
+
+    job.status = "approved"
+
+    db.session.commit()
+
+    return jsonify({
+        "message": "Drive approved successfully"
+    }), 200
+
+@admin_bp.route("/reject-drive/<int:job_id>", methods=["PUT"])
+@jwt_required()
+def reject_drive(job_id):
+
+    claims = get_jwt()
+
+    if claims["role"] != "admin":
+        return jsonify({"message": "Access denied"}), 403
+
+    job = JobPosition.query.get(job_id)
+
+    if not job:
+        return jsonify({"message": "Drive not found"}), 404
+
+    job.status = "rejected"
+
+    db.session.commit()
+
+    return jsonify({
+        "message": "Drive rejected successfully"
+    }), 200
+
+@admin_bp.route("/drives", methods=["GET"])
+@jwt_required()
+def get_all_drives():
+
+    claims = get_jwt()
+
+    if claims["role"] != "admin":
+        return jsonify({
+            "message": "Access denied"
+        }), 403
+
+    jobs = JobPosition.query.all()
+
+    output = []
+
+    for job in jobs:
+        output.append({
+            "id": job.id,
+            "title": job.title,
+            "description": job.description,
+            "salary": job.salary,
+            "skills_required": job.skills_required,
+            "status": job.status,
+            "company_id": job.company_id
+        })
+
+    return jsonify(output), 200

@@ -21,7 +21,7 @@ class JobPosition(db.Model):
 
     status = db.Column(
         db.String(20),
-        default="active"
+        default="pending"
     )
 
     company = db.relationship("Company", backref="jobs")

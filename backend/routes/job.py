@@ -64,7 +64,9 @@ def create_job():
 @job_bp.route("/all", methods=["GET"])
 def get_all_jobs():
 
-    jobs = JobPosition.query.all()
+    jobs = JobPosition.query.filter_by(
+        status="approved"
+    ).all()
 
     output = []
 
@@ -80,6 +82,7 @@ def get_all_jobs():
         })
 
     return jsonify(output), 200
+
 
 @job_bp.route("/my-jobs", methods=["GET"])
 @jwt_required()
