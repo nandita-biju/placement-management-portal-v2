@@ -1,5 +1,6 @@
 from flask import Blueprint, request, jsonify
 
+from models.job import JobPosition
 from flask_jwt_extended import (
     jwt_required,
     get_jwt_identity,
@@ -85,3 +86,31 @@ def get_student_profile():
         "resume_link": profile.resume_link,
         "experience": profile.experience
     }), 200
+
+@student_bp.route("/drives", methods=["GET"])
+@jwt_required()
+def get_all_drives():
+
+    claims = get_jwt()
+
+    if claims["role"] != "student":
+        return jsonify({
+            "message": "Access denied"
+        }), 403
+
+    jobs = JobPosition.query.filter_by(status="approved").all()
+
+    output = []
+
+    for job in jobs:
+        output.append({
+            "id": job.id,
+            "title": job.title,
+            "description": job.description,
+            "salary": job.salary,
+            "skills_required": job.skills_required,
+            "status": job.status,
+            "company_id": job.company_id
+        })
+
+    return jsonify(output), 200

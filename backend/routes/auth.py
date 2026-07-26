@@ -5,6 +5,7 @@ from extensions import db, bcrypt
 
 from flask_jwt_extended import create_access_token
 
+from models.company import Company
 
 auth_bp = Blueprint("auth", __name__)
 
@@ -78,6 +79,29 @@ def login():
 
     if not password_correct:
         return jsonify({"message": "Invalid credentials"}), 401
+    
+    if user.role == "company":
+
+        company = Company.query.filter_by(
+            user_id=user.id
+        ).first()
+
+        if company:
+
+            if company.approval_status == "pending":
+                return jsonify({
+                    "message": "Company approval pending"
+                }), 403
+
+            if company.approval_status == "rejected":
+                return jsonify({
+                    "message": "Company registration rejected"
+                }), 403
+
+            if company.status == "deactivated":
+                return jsonify({
+                    "message": "Company account is deactivated"
+                }), 403
 
     access_token = create_access_token(
         identity=str(user.id),

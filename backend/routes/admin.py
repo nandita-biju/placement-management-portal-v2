@@ -105,11 +105,39 @@ def approve_company(company_id):
         }), 404
 
     company.approval_status = "approved"
+    company.status = "active"
 
     db.session.commit()
 
     return jsonify({
         "message": "Company approved successfully"
+    }), 200
+
+@admin_bp.route("/company/<int:company_id>/reject", methods=["PATCH"])
+@jwt_required()
+def reject_company(company_id):
+
+    claims = get_jwt()
+
+    if claims["role"] != "admin":
+        return jsonify({
+            "message": "Access denied"
+        }), 403
+
+    company = Company.query.get(company_id)
+
+    if not company:
+        return jsonify({
+            "message": "Company not found"
+        }), 404
+
+    company.approval_status = "rejected"
+    company.status = "inactive"
+
+    db.session.commit()
+
+    return jsonify({
+        "message": "Company rejected"
     }), 200
 
 @admin_bp.route("/students/search", methods=["GET"])
@@ -237,3 +265,154 @@ def get_all_drives():
         })
 
     return jsonify(output), 200
+
+@admin_bp.route(
+    "/student/<int:student_id>/deactivate",
+    methods=["PUT"]
+)
+@jwt_required()
+def deactivate_student(student_id):
+
+    claims = get_jwt()
+
+    if claims["role"] != "admin":
+        return jsonify({
+            "message": "Access denied"
+        }), 403
+
+    student = Student.query.get(student_id)
+
+    if not student:
+        return jsonify({
+            "message": "Student not found"
+        }), 404
+
+    student.is_active = False
+
+    db.session.commit()
+
+    return jsonify({
+        "message": "Student deactivated"
+    }), 200
+
+@admin_bp.route(
+    "/company/<int:company_id>/deactivate",
+    methods=["PUT"]
+)
+@jwt_required()
+def deactivate_company(company_id):
+
+    claims = get_jwt()
+
+    if claims["role"] != "admin":
+        return jsonify({
+            "message": "Access denied"
+        }), 403
+
+    company = Company.query.get(company_id)
+
+    if not company:
+        return jsonify({
+            "message": "Company not found"
+        }), 404
+
+    company.status = "deactivated"
+
+    db.session.commit()
+
+    return jsonify({
+        "message": "Company deactivated"
+    }), 200
+
+
+
+@admin_bp.route(
+    "/company/<int:company_id>/activate",
+    methods=["PUT"]
+)
+@jwt_required()
+def activate_company(company_id):
+
+    claims = get_jwt()
+
+    if claims["role"] != "admin":
+        return jsonify({
+            "message": "Access denied"
+        }), 403
+
+    company = Company.query.get(company_id)
+
+    if not company:
+        return jsonify({
+            "message": "Company not found"
+        }), 404
+
+    company.status = "active"
+
+    db.session.commit()
+
+    return jsonify({
+        "message": "Company activated"
+    }), 200
+
+
+
+@admin_bp.route(
+    "/company/<int:company_id>/blacklist",
+    methods=["PUT"]
+)
+@jwt_required()
+def blacklist_company(company_id):
+
+    claims = get_jwt()
+
+    if claims["role"] != "admin":
+        return jsonify({
+            "message": "Access denied"
+        }), 403
+
+    company = Company.query.get(company_id)
+
+    if not company:
+        return jsonify({
+            "message": "Company not found"
+        }), 404
+
+    company.status = "blacklisted"
+
+    db.session.commit()
+
+    return jsonify({
+        "message": "Company blacklisted"
+    }), 200
+
+
+
+@admin_bp.route(
+    "/company/<int:company_id>/unblacklist",
+    methods=["PUT"]
+)
+@jwt_required()
+def unblacklist_company(company_id):
+
+    claims = get_jwt()
+
+    if claims["role"] != "admin":
+        return jsonify({
+            "message": "Access denied"
+        }), 403
+
+    company = Company.query.get(company_id)
+
+    if not company:
+        return jsonify({
+            "message": "Company not found"
+        }), 404
+
+    company.status = "active"
+
+    db.session.commit()
+
+    return jsonify({
+        "message": "Company unblacklisted"
+    }), 200

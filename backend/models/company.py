@@ -24,4 +24,9 @@ class Company(db.Model):
         default="pending"
     )
 
+    status = db.Column(
+        db.String(20),
+        default="inactive"
+    )
+
     user = db.relationship("User", backref="company_profile")

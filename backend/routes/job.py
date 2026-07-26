@@ -42,6 +42,11 @@ def create_job():
         return jsonify({
             "message": "Company not approved by admin"
         }), 403
+    
+    if company.status == "blacklisted":
+        return jsonify({
+            "message": "Blacklisted companies cannot create placement drives"
+        }), 403
 
     data = request.get_json()
 
@@ -74,6 +79,8 @@ def get_all_jobs():
 
         output.append({
             "id": job.id,
+            "company_id": job.company_id,
+            "company_name": job.company.company_name,
             "title": job.title,
             "description": job.description,
             "salary": job.salary,

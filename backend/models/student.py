@@ -21,4 +21,11 @@ class Student(db.Model):
 
     experience = db.Column(db.Text)
 
+    is_active = db.Column(
+        db.Boolean,
+        default=True
+    )
+
     user = db.relationship("User", backref="student_profile")
+
+    

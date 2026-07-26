@@ -35,6 +35,8 @@ def create_company_profile():
         return jsonify({
             "message": "Company profile already exists"
         }), 400
+    
+    
 
     data = request.get_json()
 

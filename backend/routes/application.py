@@ -49,6 +49,11 @@ def apply_job(job_id):
             "message": "Job not found"
         }), 404
 
+    if job.status != "approved":
+        return jsonify({
+            "message": "This placement drive is not available"
+        }), 403
+
     existing_application = Application.query.filter_by(
         student_id=student.id,
         job_id=job.id
@@ -83,6 +88,8 @@ def get_my_applications():
         return jsonify({
             "message": "Access denied"
         }), 403
+    
+    
 
     user_id = int(get_jwt_identity())
 
@@ -113,3 +120,55 @@ def get_my_applications():
         })
 
     return jsonify(output), 200
+
+
+@application_bp.route("/<int:application_id>/status", methods=["PATCH"])
+@jwt_required()
+def update_application_status(application_id):
+
+    claims = get_jwt()
+
+    if claims["role"] != "company":
+        return jsonify({"message": "Access denied"}), 403
+
+    application = Application.query.get(application_id)
+
+    if not application:
+        return jsonify({"message": "Application not found"}), 404
+
+    user_id = int(get_jwt_identity())
+
+    company = Company.query.filter_by(user_id=user_id).first()
+
+    if not company:
+        return jsonify({"message": "Company profile not found"}), 404
+
+    if company.status == "blacklisted":
+        return jsonify({
+            "message": "Blacklisted companies cannot update application status"
+        }), 403
+
+    if application.job.company_id != company.id:
+        return jsonify({"message": "Unauthorized"}), 403
+
+    data = request.get_json()
+
+    allowed_statuses = [
+        "Applied",
+        "Shortlisted",
+        "Selected",
+        "Rejected"
+    ]
+
+    if data["status"] not in allowed_statuses:
+        return jsonify({
+            "message": "Invalid application status"
+        }), 400
+
+    application.status = data["status"]
+
+    db.session.commit()
+
+    return jsonify({
+        "message": "Application status updated successfully"
+    }), 200
