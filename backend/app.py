@@ -1,4 +1,5 @@
 from flask import Flask
+from flask_cors import CORS
 from config import Config
 from extensions import db, bcrypt
 from models.user import User
@@ -18,6 +19,8 @@ from routes.application import application_bp
 from routes.admin import admin_bp
 
 app = Flask(__name__)
+
+CORS(app, resources={r"/*": {"origins": "http://localhost:5173"}})
 
 app.config.from_object(Config)
 
