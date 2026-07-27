@@ -1,5 +1,8 @@
 import { createRouter, createWebHistory } from "vue-router";
 
+// Layouts
+import StudentLayout from "../layouts/StudentLayout.vue";
+
 // Auth
 import LoginView from "../views/Auth/LoginView.vue";
 import RegisterStudentView from "../views/Auth/RegisterStudentView.vue";
@@ -42,28 +45,37 @@ const routes = [
     },
 
     {
-        path: "/student/dashboard",
-        component: StudentDashboard
-    },
+        path: "/student",
+        component: StudentLayout,
 
-    {
-        path: "/student/profile",
-        component: StudentProfile
-    },
+        children: [
 
-    {
-        path: "/student/profile/edit",
-        component: EditStudentProfile
-    },
+            {
+                path: "dashboard",
+                component: StudentDashboard
+            },
 
-    {
-        path: "/student/drives",
-        component: BrowseDrives
-    },
+            {
+                path: "profile",
+                component: StudentProfile
+            },
 
-    {
-        path: "/student/applications",
-        component: MyApplications
+            {
+                path: "profile/edit",
+                component: EditStudentProfile
+            },
+
+            {
+                path: "drives",
+                component: BrowseDrives
+            },
+
+            {
+                path: "applications",
+                component: MyApplications
+            }
+
+        ]
     },
 
     {
