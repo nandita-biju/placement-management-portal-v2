@@ -44,6 +44,22 @@ import { getProfile } from "../../services/studentService";
 const profile = ref({});
 
 onMounted(async () => {
-    profile.value = await getProfile();
+
+    try{
+
+        profile.value = await getProfile();
+
+    }
+
+    catch(error){
+
+        if(error.response.status === 404){
+
+            router.push("/student/profile/create");
+
+        }
+
+    }
+
 });
 </script>

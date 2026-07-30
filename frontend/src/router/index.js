@@ -11,6 +11,7 @@ import RegisterCompanyView from "../views/Auth/RegisterCompanyView.vue";
 // Student
 import StudentDashboard from "../views/Student/StudentDashboard.vue";
 import StudentProfile from "../views/Student/StudentProfile.vue";
+import CreateStudentProfile from "../views/Student/CreateStudentProfile.vue";
 import EditStudentProfile from "../views/Student/EditStudentProfile.vue";
 import BrowseDrives from "../views/Student/BrowseDrives.vue";
 import MyApplications from "../views/Student/MyApplications.vue";
@@ -76,6 +77,11 @@ const routes = [
             }
 
         ]
+    },
+
+    {
+        path: "/student/profile/create",
+        component: CreateStudentProfile
     },
 
     {

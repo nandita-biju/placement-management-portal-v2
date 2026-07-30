@@ -87,6 +87,42 @@ def get_student_profile():
         "experience": profile.experience
     }), 200
 
+@student_bp.route("/profile", methods=["PUT"])
+@jwt_required()
+def update_student_profile():
+
+    claims = get_jwt()
+
+    if claims["role"] != "student":
+        return jsonify({
+            "message": "Access denied"
+        }), 403
+
+    user_id = int(get_jwt_identity())
+
+    student = Student.query.filter_by(
+        user_id=user_id
+    ).first()
+
+    if not student:
+        return jsonify({
+            "message": "Student profile not found"
+        }), 404
+
+    data = request.get_json()
+
+    student.full_name = data["full_name"]
+    student.education = data.get("education")
+    student.skills = data.get("skills")
+    student.resume_link = data.get("resume_link")
+    student.experience = data.get("experience")
+
+    db.session.commit()
+
+    return jsonify({
+        "message": "Profile updated successfully"
+    }), 200
+    
 @student_bp.route("/drives", methods=["GET"])
 @jwt_required()
 def get_all_drives():

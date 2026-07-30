@@ -17,10 +17,10 @@
           <h5>Profile</h5>
           <p>Complete your profile.</p>
           <router-link
-            to="/student/profile"
-            class="btn btn-primary"
+              to="/student/profile/create"
+              class="btn btn-primary"
           >
-            View Profile
+              Complete Profile
           </router-link>
         </div>
       </div>
