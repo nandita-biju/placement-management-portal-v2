@@ -24,6 +24,7 @@ import CreateDrive from "../views/Company/CreateDrive.vue";
 import MyDrives from "../views/Company/MyDrives.vue";
 import ViewApplicants from "../views/Company/ViewApplicants.vue";
 import EditCompanyProfile from "../views/Company/EditCompanyProfile.vue";
+import CreateCompanyProfile from "../views/Company/CreateCompanyProfile.vue";
 
 
 // Admin
@@ -103,6 +104,11 @@ const routes = [
             },
 
             {
+                path: "profile/create",
+                component: CreateCompanyProfile
+            },
+
+            {
                 path: "profile/edit",
                 component: EditCompanyProfile
             },
@@ -118,13 +124,12 @@ const routes = [
             },
 
             {
-                path: "applicants",
+                path: "applicants/:jobId",
                 component: ViewApplicants
             }
 
         ]
     },
-
     {
         path: "/admin/dashboard",
         component: AdminDashboard

@@ -41,6 +41,7 @@
             <input
               v-model="profile.website"
               class="form-control"
+              placeholder="https://company.com"
             >
           </div>
 
@@ -86,19 +87,32 @@ const profile = ref({});
 
 onMounted(async () => {
 
-    try{
+    try {
+
         profile.value = await getCompanyProfile();
+
     }
 
-    catch(error){
+    catch (error) {
+
         console.log(error);
+
     }
 
 });
 
 const saveProfile = async () => {
 
-    try{
+    try {
+
+        // Automatically add https:// if missing
+        if (
+            profile.value.website &&
+            !profile.value.website.startsWith("http")
+        ) {
+            profile.value.website =
+                "https://" + profile.value.website;
+        }
 
         await updateCompanyProfile(profile.value);
 
@@ -108,7 +122,7 @@ const saveProfile = async () => {
 
     }
 
-    catch(error){
+    catch (error) {
 
         alert(
             error.response?.data?.message || error.message
@@ -119,6 +133,8 @@ const saveProfile = async () => {
 };
 
 const goBack = () => {
+
     router.push("/company/profile");
+
 };
 </script>

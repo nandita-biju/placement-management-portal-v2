@@ -8,10 +8,19 @@
         <h3>Company Profile</h3>
 
         <router-link
-          to="/company/profile/edit"
-          class="btn btn-primary"
+            v-if="profileExists"
+            to="/company/profile/edit"
+            class="btn btn-primary"
         >
-          Edit Profile
+            Edit Profile
+        </router-link>
+
+        <router-link
+            v-else
+            to="/company/profile/create"
+            class="btn btn-success"
+        >
+            Create Profile
         </router-link>
 
       </div>
@@ -102,25 +111,37 @@ import { ref, onMounted, computed } from "vue";
 import { getCompanyProfile } from "../../services/companyService";
 
 const profile = ref({});
+const profileExists = ref(false);
 
 onMounted(async () => {
 
-    try{
+    try {
+
         profile.value = await getCompanyProfile();
+        profileExists.value = true;
+
     }
 
-    catch(error){
-        console.log(error);
+    catch (error) {
+
+        if (error.response?.status === 404) {
+            profileExists.value = false;
+        }
+
+        else {
+            console.log(error);
+        }
+
     }
 
 });
 
 const badgeClass = computed(() => {
 
-    if(profile.value.approval_status === "approved")
+    if (profile.value.approval_status === "approved")
         return "bg-success";
 
-    if(profile.value.approval_status === "rejected")
+    if (profile.value.approval_status === "rejected")
         return "bg-danger";
 
     return "bg-warning text-dark";
