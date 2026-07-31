@@ -43,3 +43,46 @@ export const updateCompanyProfile = async (profile) => {
 
     return response.data;
 };
+
+export const getMyDrives = async () => {
+
+    const response = await api.get(
+        "/jobs/my-jobs",
+        {
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem("token")}`
+            }
+        }
+    );
+
+    return response.data;
+};
+
+export const getApplicants = async (jobId) => {
+
+    const response = await api.get(
+        `/jobs/${jobId}/applications`,
+        {
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem("token")}`
+            }
+        }
+    );
+
+    return response.data;
+};
+
+export const updateApplicationStatus = async (applicationId, status) => {
+
+    const response = await api.patch(
+        `/applications/${applicationId}/status`,
+        { status },
+        {
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem("token")}`
+            }
+        }
+    );
+
+    return response.data;
+};

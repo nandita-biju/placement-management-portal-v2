@@ -174,6 +174,7 @@ def get_job_applications(job_id):
 
         output.append({
             "application_id": application.id,
+            "student_id": application.student.id,
             "student_name": application.student.full_name,
             "education": application.student.education,
             "skills": application.student.skills,

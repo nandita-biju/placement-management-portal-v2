@@ -25,6 +25,7 @@ import MyDrives from "../views/Company/MyDrives.vue";
 import ViewApplicants from "../views/Company/ViewApplicants.vue";
 import EditCompanyProfile from "../views/Company/EditCompanyProfile.vue";
 import CreateCompanyProfile from "../views/Company/CreateCompanyProfile.vue";
+import CompanyStudentProfile from "../views/Company/CompanyStudentProfile.vue";
 
 
 // Admin
@@ -126,7 +127,12 @@ const routes = [
             {
                 path: "applicants/:jobId",
                 component: ViewApplicants
-            }
+            },
+
+            {
+                path: "student/:studentId/:jobId",
+                component: CompanyStudentProfile
+            },
 
         ]
     },

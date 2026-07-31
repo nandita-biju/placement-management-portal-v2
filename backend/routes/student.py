@@ -149,3 +149,32 @@ def get_all_drives():
             "status": job.status
         })
     return jsonify(output), 200
+
+@student_bp.route("/<int:student_id>", methods=["GET"])
+@jwt_required()
+def get_student_by_id(student_id):
+
+    claims = get_jwt()
+
+    if claims["role"] != "company":
+        return jsonify({
+            "message":"Access denied"
+        }),403
+
+    student = Student.query.get(student_id)
+
+    if not student:
+        return jsonify({
+            "message":"Student not found"
+        }),404
+
+    return jsonify({
+
+        "id":student.id,
+        "full_name":student.full_name,
+        "education":student.education,
+        "skills":student.skills,
+        "experience":student.experience,
+        "resume_link":student.resume_link
+
+    }),200

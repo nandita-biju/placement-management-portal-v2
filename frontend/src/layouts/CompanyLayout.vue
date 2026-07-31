@@ -50,14 +50,7 @@
             </router-link>
           </li>
 
-          <li class="nav-item mb-3">
-            <router-link
-              to="/company/applicants"
-              class="nav-link text-white"
-            >
-              Applicants
-            </router-link>
-          </li>
+          
 
         </ul>
 

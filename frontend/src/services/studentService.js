@@ -39,3 +39,17 @@ export const updateProfile = async (profile) => {
 
     return response.data;
 };
+
+export const getStudentById = async (studentId) => {
+
+    const response = await api.get(
+        `/student/${studentId}`,
+        {
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem("token")}`
+            }
+        }
+    );
+
+    return response.data;
+};
