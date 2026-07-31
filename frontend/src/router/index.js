@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from "vue-router";
 
 // Layouts
 import StudentLayout from "../layouts/StudentLayout.vue";
+import CompanyLayout from "../layouts/CompanyLayout.vue";
 
 // Auth
 import LoginView from "../views/Auth/LoginView.vue";
@@ -22,6 +23,8 @@ import CompanyProfile from "../views/Company/CompanyProfile.vue";
 import CreateDrive from "../views/Company/CreateDrive.vue";
 import MyDrives from "../views/Company/MyDrives.vue";
 import ViewApplicants from "../views/Company/ViewApplicants.vue";
+import EditCompanyProfile from "../views/Company/EditCompanyProfile.vue";
+
 
 // Admin
 import AdminDashboard from "../views/Admin/AdminDashboard.vue";
@@ -85,28 +88,41 @@ const routes = [
     },
 
     {
-        path: "/company/dashboard",
-        component: CompanyDashboard
-    },
+        path: "/company",
+        component: CompanyLayout,
+        children: [
 
-    {
-        path: "/company/profile",
-        component: CompanyProfile
-    },
+            {
+                path: "dashboard",
+                component: CompanyDashboard
+            },
 
-    {
-        path: "/company/create-drive",
-        component: CreateDrive
-    },
+            {
+                path: "profile",
+                component: CompanyProfile
+            },
 
-    {
-        path: "/company/drives",
-        component: MyDrives
-    },
+            {
+                path: "profile/edit",
+                component: EditCompanyProfile
+            },
 
-    {
-        path: "/company/applicants",
-        component: ViewApplicants
+            {
+                path: "create-drive",
+                component: CreateDrive
+            },
+
+            {
+                path: "drives",
+                component: MyDrives
+            },
+
+            {
+                path: "applicants",
+                component: ViewApplicants
+            }
+
+        ]
     },
 
     {

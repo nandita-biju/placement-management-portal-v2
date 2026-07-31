@@ -85,3 +85,39 @@ def get_company_profile():
         "website": company.website,
         "approval_status": company.approval_status
     }), 200
+
+
+@company_bp.route("/profile", methods=["PUT"])
+@jwt_required()
+def update_company_profile():
+
+    claims = get_jwt()
+
+    if claims["role"] != "company":
+        return jsonify({
+            "message": "Access denied"
+        }), 403
+
+    user_id = int(get_jwt_identity())
+
+    company = Company.query.filter_by(
+        user_id=user_id
+    ).first()
+
+    if not company:
+        return jsonify({
+            "message": "Company profile not found"
+        }), 404
+
+    data = request.get_json()
+
+    company.company_name = data["company_name"]
+    company.industry = data.get("industry")
+    company.location = data.get("location")
+    company.website = data.get("website")
+
+    db.session.commit()
+
+    return jsonify({
+        "message": "Company profile updated successfully"
+    }), 200

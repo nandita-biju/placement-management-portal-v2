@@ -88,7 +88,10 @@
   </div>
 </template>
 
+
 <script setup>
+import StudentNavbar from "../components/Student/StudentNavbar.vue";
+import StudentSidebar from "../components/Student/StudentSidebar.vue";
 import { useRouter } from "vue-router";
 
 const router = useRouter();
