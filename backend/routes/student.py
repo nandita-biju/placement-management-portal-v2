@@ -141,12 +141,11 @@ def get_all_drives():
     for job in jobs:
         output.append({
             "id": job.id,
+            "company_name": job.company.company_name,
             "title": job.title,
             "description": job.description,
             "salary": job.salary,
             "skills_required": job.skills_required,
-            "status": job.status,
-            "company_id": job.company_id
+            "status": job.status
         })
-
     return jsonify(output), 200

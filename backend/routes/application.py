@@ -114,6 +114,7 @@ def get_my_applications():
 
         output.append({
             "application_id": application.id,
+            "company_name": application.job.company.company_name,
             "job_title": application.job.title,
             "status": application.status,
             "applied_at": application.applied_at
