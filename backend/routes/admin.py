@@ -55,7 +55,8 @@ def get_companies():
             "company_name": company.company_name,
             "industry": company.industry,
             "location": company.location,
-            "approval_status": company.approval_status
+            "approval_status": company.approval_status,
+            "status": company.status
         })
 
     return jsonify(output), 200
@@ -81,7 +82,8 @@ def get_students():
             "id": student.id,
             "full_name": student.full_name,
             "education": student.education,
-            "skills": student.skills
+            "skills": student.skills,
+            "is_active": student.is_active
         })
 
     return jsonify(output), 200
@@ -294,6 +296,37 @@ def deactivate_student(student_id):
     return jsonify({
         "message": "Student deactivated"
     }), 200
+
+
+@admin_bp.route(
+    "/student/<int:student_id>/activate",
+    methods=["PUT"]
+)
+@jwt_required()
+def activate_student(student_id):
+
+    claims = get_jwt()
+
+    if claims["role"] != "admin":
+        return jsonify({
+            "message": "Access denied"
+        }), 403
+
+    student = Student.query.get(student_id)
+
+    if not student:
+        return jsonify({
+            "message": "Student not found"
+        }), 404
+
+    student.is_active = True
+
+    db.session.commit()
+
+    return jsonify({
+        "message": "Student activated successfully"
+    }), 200
+
 
 @admin_bp.route(
     "/company/<int:company_id>/deactivate",

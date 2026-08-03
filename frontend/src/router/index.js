@@ -3,6 +3,7 @@ import { createRouter, createWebHistory } from "vue-router";
 // Layouts
 import StudentLayout from "../layouts/StudentLayout.vue";
 import CompanyLayout from "../layouts/CompanyLayout.vue";
+import AdminLayout from "../layouts/AdminLayout.vue";
 
 // Auth
 import LoginView from "../views/Auth/LoginView.vue";
@@ -137,23 +138,31 @@ const routes = [
         ]
     },
     {
-        path: "/admin/dashboard",
-        component: AdminDashboard
-    },
+        path: "/admin",
+        component: AdminLayout,
+        children: [
 
-    {
-        path: "/admin/companies",
-        component: ManageCompanies
-    },
+            {
+                path: "dashboard",
+                component: AdminDashboard
+            },
 
-    {
-        path: "/admin/students",
-        component: ManageStudents
-    },
+            {
+                path: "companies",
+                component: ManageCompanies
+            },
 
-    {
-        path: "/admin/drives",
-        component: ManageDrives
+            {
+                path: "students",
+                component: ManageStudents
+            },
+
+            {
+                path: "drives",
+                component: ManageDrives
+            }
+
+        ]
     }
 ];
 
