@@ -13,6 +13,8 @@ from models.job import JobPosition
 from models.application import Application
 
 
+from datetime import datetime
+
 job_bp = Blueprint("job", __name__)
 
 
@@ -50,12 +52,29 @@ def create_job():
 
     data = request.get_json()
 
+    # Validate required eligibility fields
+    required_fields = ["title", "eligible_branch", "min_cgpa", "eligible_graduation_year", "application_deadline"]
+    for field in required_fields:
+        if field not in data or data[field] is None or str(data[field]).strip() == "":
+            return jsonify({"message": f"Missing required field: {field}"}), 400
+
+    deadline = None
+    if data.get("application_deadline"):
+        try:
+            deadline = datetime.strptime(data["application_deadline"], "%Y-%m-%d").date()
+        except ValueError:
+            return jsonify({"message": "Invalid date format for application_deadline. Use YYYY-MM-DD"}), 400
+
     job = JobPosition(
         company_id=company.id,
         title=data["title"],
         description=data.get("description"),
         salary=data.get("salary"),
-        skills_required=data.get("skills_required")
+        skills_required=data.get("skills_required"),
+        eligible_branch=data.get("eligible_branch"),
+        min_cgpa=float(data["min_cgpa"]) if data.get("min_cgpa") is not None else None,
+        eligible_graduation_year=int(data["eligible_graduation_year"]) if data.get("eligible_graduation_year") is not None else None,
+        application_deadline=deadline
     )
 
     db.session.add(job)
@@ -85,6 +104,10 @@ def get_all_jobs():
             "description": job.description,
             "salary": job.salary,
             "skills_required": job.skills_required,
+            "eligible_branch": job.eligible_branch,
+            "min_cgpa": job.min_cgpa,
+            "eligible_graduation_year": job.eligible_graduation_year,
+            "application_deadline": job.application_deadline.strftime("%Y-%m-%d") if job.application_deadline else None,
             "status": job.status
         })
 
@@ -127,6 +150,10 @@ def get_my_jobs():
             "description": job.description,
             "salary": job.salary,
             "skills_required": job.skills_required,
+            "eligible_branch": job.eligible_branch,
+            "min_cgpa": job.min_cgpa,
+            "eligible_graduation_year": job.eligible_graduation_year,
+            "application_deadline": job.application_deadline.strftime("%Y-%m-%d") if job.application_deadline else None,
             "status": job.status
         })
 
@@ -179,7 +206,10 @@ def get_job_applications(job_id):
             "education": application.student.education,
             "skills": application.student.skills,
             "resume_link": application.student.resume_link,
+            "branch": application.student.branch,
+            "cgpa": application.student.cgpa,
+            "graduation_year": application.student.graduation_year,
             "status": application.status
         })
 
-    return jsonify(output), 200
+    return jsonify(output), 200

@@ -281,10 +281,45 @@ def get_all_drives():
             "description": job.description,
             "salary": job.salary,
             "skills_required": job.skills_required,
+            "eligible_branch": job.eligible_branch,
+            "min_cgpa": job.min_cgpa,
+            "eligible_graduation_year": job.eligible_graduation_year,
+            "application_deadline": job.application_deadline.strftime("%Y-%m-%d") if job.application_deadline else None,
             "status": job.status
         })
 
     return jsonify(output), 200
+
+
+
+@admin_bp.route("/applications", methods=["GET"])
+@jwt_required()
+def get_all_applications():
+
+    claims = get_jwt()
+
+    if claims["role"] != "admin":
+        return jsonify({
+            "message": "Access denied"
+        }), 403
+
+    applications = Application.query.all()
+
+    output = []
+
+    for application in applications:
+
+        output.append({
+            "id": application.id,
+            "student_name": application.student.full_name,
+            "company_name": application.job.company.company_name,
+            "drive_title": application.job.title,
+            "status": application.status,
+            "applied_at": application.applied_at.strftime("%d-%m-%Y")
+        })
+
+    return jsonify(output), 200
+
 
 @admin_bp.route(
     "/student/<int:student_id>/deactivate",

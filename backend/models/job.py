@@ -19,9 +19,17 @@ class JobPosition(db.Model):
 
     skills_required = db.Column(db.Text)
 
+    eligible_branch = db.Column(db.String(100))
+
+    min_cgpa = db.Column(db.Float)
+
+    eligible_graduation_year = db.Column(db.Integer)
+
+    application_deadline = db.Column(db.Date)
+
     status = db.Column(
         db.String(20),
         default="pending"
     )
 
-    company = db.relationship("Company", backref="jobs")
+    company = db.relationship("Company", backref="jobs")

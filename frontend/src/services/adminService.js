@@ -105,3 +105,11 @@ export const searchCompanies = async (query) => {
     return response.data;
 
 };
+
+export const getApplications = async () => {
+
+    const response = await api.get("/admin/applications");
+
+    return response.data;
+
+};

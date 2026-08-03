@@ -12,9 +12,25 @@
     </div>
 
     <div class="col-md-6 mb-3">
+        <strong>Branch</strong>
+        <p>{{ profile.branch || 'Not specified' }}</p>
+    </div>
+
+    <div class="col-md-6 mb-3">
+        <strong>Current CGPA</strong>
+        <p>{{ profile.cgpa !== null && profile.cgpa !== undefined ? profile.cgpa : 'Not specified' }}</p>
+    </div>
+
+    <div class="col-md-6 mb-3">
+        <strong>Graduation Year</strong>
+        <p>{{ profile.graduation_year || 'Not specified' }}</p>
+    </div>
+
+    <div class="col-md-6 mb-3">
         <strong>Skills</strong>
         <p>{{ profile.skills }}</p>
     </div>
+
 
     <div class="col-md-6 mb-3">
         <strong>Experience</strong>

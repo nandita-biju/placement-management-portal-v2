@@ -46,6 +46,15 @@
         </router-link>
       </li>
 
+      <li class="nav-item mb-2">
+        <router-link
+            to="/admin/applications"
+            class="nav-link text-white"
+        >
+            Applications
+        </router-link>
+      </li>
+
       <li class="nav-item mt-4">
 
         <button

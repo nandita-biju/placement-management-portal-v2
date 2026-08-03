@@ -21,11 +21,18 @@ class Student(db.Model):
 
     experience = db.Column(db.Text)
 
+    branch = db.Column(db.String(100))
+
+    cgpa = db.Column(db.Float)
+
+    graduation_year = db.Column(db.Integer)
+
     is_active = db.Column(
         db.Boolean,
         default=True
     )
 
     user = db.relationship("User", backref="student_profile")
+
 
     

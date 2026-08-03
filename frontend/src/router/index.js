@@ -34,6 +34,7 @@ import AdminDashboard from "../views/Admin/AdminDashboard.vue";
 import ManageCompanies from "../views/Admin/ManageCompanies.vue";
 import ManageStudents from "../views/Admin/ManageStudents.vue";
 import ManageDrives from "../views/Admin/ManageDrives.vue";
+import ManageApplications from "../views/Admin/ManageApplications.vue";
 
 const routes = [
     {
@@ -160,7 +161,12 @@ const routes = [
             {
                 path: "drives",
                 component: ManageDrives
-            }
+            },
+
+            {
+                path: "applications",
+                component: ManageApplications
+            },
 
         ]
     }

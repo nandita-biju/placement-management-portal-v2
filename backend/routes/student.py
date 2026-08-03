@@ -46,7 +46,10 @@ def create_student_profile():
         education=data.get("education"),
         skills=data.get("skills"),
         resume_link=data.get("resume_link"),
-        experience=data.get("experience")
+        experience=data.get("experience"),
+        branch=data.get("branch"),
+        cgpa=float(data["cgpa"]) if data.get("cgpa") is not None and data.get("cgpa") != "" else None,
+        graduation_year=int(data["graduation_year"]) if data.get("graduation_year") is not None and data.get("graduation_year") != "" else None
     )
 
     db.session.add(profile)
@@ -84,7 +87,10 @@ def get_student_profile():
         "education": profile.education,
         "skills": profile.skills,
         "resume_link": profile.resume_link,
-        "experience": profile.experience
+        "experience": profile.experience,
+        "branch": profile.branch,
+        "cgpa": profile.cgpa,
+        "graduation_year": profile.graduation_year
     }), 200
 
 @student_bp.route("/profile", methods=["PUT"])
@@ -116,6 +122,9 @@ def update_student_profile():
     student.skills = data.get("skills")
     student.resume_link = data.get("resume_link")
     student.experience = data.get("experience")
+    student.branch = data.get("branch")
+    student.cgpa = float(data["cgpa"]) if data.get("cgpa") is not None and data.get("cgpa") != "" else None
+    student.graduation_year = int(data["graduation_year"]) if data.get("graduation_year") is not None and data.get("graduation_year") != "" else None
 
     db.session.commit()
 
@@ -146,6 +155,10 @@ def get_all_drives():
             "description": job.description,
             "salary": job.salary,
             "skills_required": job.skills_required,
+            "eligible_branch": job.eligible_branch,
+            "min_cgpa": job.min_cgpa,
+            "eligible_graduation_year": job.eligible_graduation_year,
+            "application_deadline": job.application_deadline.strftime("%Y-%m-%d") if job.application_deadline else None,
             "status": job.status
         })
     return jsonify(output), 200
@@ -156,7 +169,7 @@ def get_student_by_id(student_id):
 
     claims = get_jwt()
 
-    if claims["role"] != "company":
+    if claims["role"] not in ["company", "admin"]:
         return jsonify({
             "message":"Access denied"
         }),403
@@ -175,6 +188,9 @@ def get_student_by_id(student_id):
         "education":student.education,
         "skills":student.skills,
         "experience":student.experience,
-        "resume_link":student.resume_link
+        "resume_link":student.resume_link,
+        "branch":student.branch,
+        "cgpa":student.cgpa,
+        "graduation_year":student.graduation_year
 
-    }),200
+    }),200

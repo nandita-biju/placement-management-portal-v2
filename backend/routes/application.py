@@ -14,6 +14,9 @@ from models.job import JobPosition
 from models.application import Application
 
 
+from datetime import datetime, date
+
+
 application_bp = Blueprint(
     "application",
     __name__
@@ -54,6 +57,38 @@ def apply_job(job_id):
             "message": "This placement drive is not available"
         }), 403
 
+    # 1. Branch Validation
+    if job.eligible_branch and job.eligible_branch.strip().lower() not in ["all", "all branches"]:
+        student_branch = (student.branch or "").strip().lower()
+        if student_branch != job.eligible_branch.strip().lower():
+            return jsonify({
+                "message": f"You are not eligible for this drive. Required branch: {job.eligible_branch}."
+            }), 400
+
+    # 2. CGPA Validation
+    if job.min_cgpa is not None:
+        if student.cgpa is None or float(student.cgpa) < float(job.min_cgpa):
+            min_cgpa_str = f"{job.min_cgpa:.1f}" if isinstance(job.min_cgpa, float) and job.min_cgpa % 1 != 0 else f"{job.min_cgpa}"
+            return jsonify({
+                "message": f"Minimum CGPA required is {min_cgpa_str}."
+            }), 400
+
+    # 3. Graduation Year Validation
+    if job.eligible_graduation_year is not None:
+        if student.graduation_year is None or int(student.graduation_year) != int(job.eligible_graduation_year):
+            return jsonify({
+                "message": f"This drive is only for the {job.eligible_graduation_year} graduating batch."
+            }), 400
+
+    # 4. Application Deadline Validation
+    if job.application_deadline:
+        current_date = date.today()
+        if current_date > job.application_deadline:
+            return jsonify({
+                "message": "The application deadline has passed."
+            }), 400
+
+    # 5. Duplicate Application Validation
     existing_application = Application.query.filter_by(
         student_id=student.id,
         job_id=job.id
@@ -76,6 +111,7 @@ def apply_job(job_id):
     return jsonify({
         "message": "Application submitted successfully"
     }), 201
+
 
 
 @application_bp.route("/my-applications", methods=["GET"])

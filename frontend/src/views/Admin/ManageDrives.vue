@@ -23,9 +23,12 @@
           <th>Company</th>
           <th>Job Title</th>
           <th>Salary</th>
-          <th>Skills Required</th>
+          <th>Eligible Branch</th>
+          <th>Min CGPA</th>
+          <th>Batch</th>
+          <th>Deadline</th>
           <th>Status</th>
-          <th width="220">
+          <th width="180">
             Actions
           </th>
         </tr>
@@ -45,7 +48,13 @@
 
           <td>{{ drive.salary }}</td>
 
-          <td>{{ drive.skills_required }}</td>
+          <td>{{ drive.eligible_branch || 'All' }}</td>
+
+          <td>{{ drive.min_cgpa !== null && drive.min_cgpa !== undefined ? drive.min_cgpa : 'None' }}</td>
+
+          <td>{{ drive.eligible_graduation_year || 'All' }}</td>
+
+          <td>{{ drive.application_deadline || 'N/A' }}</td>
 
           <td>
 
@@ -57,6 +66,7 @@
             </span>
 
           </td>
+
 
           <td>
 

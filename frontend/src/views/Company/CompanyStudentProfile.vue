@@ -44,6 +44,43 @@
             <div class="row mb-3">
 
                 <div class="col-md-3">
+                    <strong>Branch</strong>
+                </div>
+
+                <div class="col-md-9">
+                    {{ student.branch || 'N/A' }}
+                </div>
+
+            </div>
+
+            <div class="row mb-3">
+
+                <div class="col-md-3">
+                    <strong>CGPA</strong>
+                </div>
+
+                <div class="col-md-9">
+                    {{ student.cgpa !== null && student.cgpa !== undefined ? student.cgpa : 'N/A' }}
+                </div>
+
+            </div>
+
+            <div class="row mb-3">
+
+                <div class="col-md-3">
+                    <strong>Graduation Year</strong>
+                </div>
+
+                <div class="col-md-9">
+                    {{ student.graduation_year || 'N/A' }}
+                </div>
+
+            </div>
+
+
+            <div class="row mb-3">
+
+                <div class="col-md-3">
                     <strong>Skills</strong>
                 </div>
 

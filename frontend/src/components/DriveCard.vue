@@ -17,6 +17,22 @@
         {{ drive.skills_required }}
       </p>
 
+      <div class="row text-muted small mb-3">
+        <div class="col-md-6" v-if="drive.eligible_branch">
+          <strong>Eligible Branch:</strong> {{ drive.eligible_branch }}
+        </div>
+        <div class="col-md-6" v-if="drive.min_cgpa !== null && drive.min_cgpa !== undefined">
+          <strong>Min CGPA:</strong> {{ drive.min_cgpa }}
+        </div>
+        <div class="col-md-6" v-if="drive.eligible_graduation_year">
+          <strong>Graduation Year:</strong> {{ drive.eligible_graduation_year }}
+        </div>
+        <div class="col-md-6" v-if="drive.application_deadline">
+          <strong>Deadline:</strong> {{ drive.application_deadline }}
+        </div>
+      </div>
+
+
       <p>
         <strong>Status:</strong>
 
