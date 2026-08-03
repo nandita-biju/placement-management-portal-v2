@@ -70,3 +70,38 @@ export const activateStudent = async (studentId) => {
     const response = await api.put(`/admin/student/${studentId}/activate`);
     return response.data;
 };
+
+export const getDrives = async () => {
+    const response = await api.get("/admin/drives");
+    return response.data;
+};
+
+export const approveDrive = async (jobId) => {
+    const response = await api.put(`/admin/approve-drive/${jobId}`);
+    return response.data;
+};
+
+export const rejectDrive = async (jobId) => {
+    const response = await api.put(`/admin/reject-drive/${jobId}`);
+    return response.data;
+};
+
+export const searchStudents = async (query) => {
+
+    const response = await api.get(
+        `/admin/students/search?query=${query}`
+    );
+
+    return response.data;
+
+};
+
+export const searchCompanies = async (query) => {
+
+    const response = await api.get(
+        `/admin/companies/search?query=${query}`
+    );
+
+    return response.data;
+
+};

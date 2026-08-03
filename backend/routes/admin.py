@@ -142,6 +142,8 @@ def reject_company(company_id):
         "message": "Company rejected"
     }), 200
 
+from sqlalchemy import or_
+
 @admin_bp.route("/students/search", methods=["GET"])
 @jwt_required()
 def search_students():
@@ -151,23 +153,31 @@ def search_students():
     if claims["role"] != "admin":
         return jsonify({"message": "Access denied"}), 403
 
-    skill = request.args.get("skill")
+    query = request.args.get("query", "")
 
     students = Student.query.filter(
-        Student.skills.ilike(f"%{skill}%")
+        or_(
+            Student.full_name.ilike(f"%{query}%"),
+            Student.skills.ilike(f"%{query}%"),
+            Student.education.ilike(f"%{query}%")
+        )
     ).all()
 
     output = []
 
     for student in students:
+
         output.append({
             "id": student.id,
             "full_name": student.full_name,
+            "education": student.education,
             "skills": student.skills,
-            "education": student.education
+            "is_active": student.is_active
         })
 
     return jsonify(output), 200
+
+from sqlalchemy import or_
 
 @admin_bp.route("/companies/search", methods=["GET"])
 @jwt_required()
@@ -178,20 +188,27 @@ def search_companies():
     if claims["role"] != "admin":
         return jsonify({"message": "Access denied"}), 403
 
-    industry = request.args.get("industry")
+    query = request.args.get("query", "")
 
     companies = Company.query.filter(
-        Company.industry.ilike(f"%{industry}%")
+        or_(
+            Company.company_name.ilike(f"%{query}%"),
+            Company.industry.ilike(f"%{query}%"),
+            Company.location.ilike(f"%{query}%")
+        )
     ).all()
 
     output = []
 
     for company in companies:
+
         output.append({
             "id": company.id,
             "company_name": company.company_name,
             "industry": company.industry,
-            "location": company.location
+            "location": company.location,
+            "approval_status": company.approval_status,
+            "status": company.status
         })
 
     return jsonify(output), 200
@@ -256,14 +273,15 @@ def get_all_drives():
     output = []
 
     for job in jobs:
+
         output.append({
             "id": job.id,
+            "company_name": job.company.company_name,
             "title": job.title,
             "description": job.description,
             "salary": job.salary,
             "skills_required": job.skills_required,
-            "status": job.status,
-            "company_id": job.company_id
+            "status": job.status
         })
 
     return jsonify(output), 200

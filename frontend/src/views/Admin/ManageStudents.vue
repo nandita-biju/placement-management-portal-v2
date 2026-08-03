@@ -5,6 +5,45 @@
       Students
     </h2>
 
+    <!-- Search Bar -->
+    <div class="row mb-4">
+
+      <div class="col-md-4">
+
+        <input
+          v-model="query"
+          @input="search"
+          class="form-control"
+          placeholder="Search Students..."
+        />
+
+      </div>
+
+      <div class="col-auto">
+
+        <button
+          class="btn btn-primary"
+          @click="search"
+        >
+          Search
+        </button>
+
+      </div>
+
+      <div class="col-auto">
+
+        <button
+          class="btn btn-secondary"
+          @click="loadStudents"
+        >
+          Reset
+        </button>
+
+      </div>
+
+    </div>
+
+    <!-- No Students -->
     <div
       v-if="students.length === 0"
       class="alert alert-info"
@@ -12,8 +51,9 @@
       No students found.
     </div>
 
+    <!-- Students Table -->
     <table
-      v-else
+      v-if="students.length > 0"
       class="table table-bordered table-hover align-middle"
     >
 
@@ -43,33 +83,35 @@
           <td>{{ student.skills }}</td>
 
           <td>
+
             <span
-                class="badge"
-                :class="student.is_active ? 'bg-success' : 'bg-secondary'"
+              class="badge"
+              :class="student.is_active ? 'bg-success' : 'bg-secondary'"
             >
-                {{ student.is_active ? "Active" : "Inactive" }}
+              {{ student.is_active ? "Active" : "Inactive" }}
             </span>
-        </td>
+
+          </td>
 
           <td>
 
             <button
-                v-if="student.is_active"
-                class="btn btn-danger"
-                @click="deactivate(student.id)"
+              v-if="student.is_active"
+              class="btn btn-danger"
+              @click="deactivate(student.id)"
             >
-                Deactivate
+              Deactivate
             </button>
 
             <button
-                v-else
-                class="btn btn-success"
-                @click="activate(student.id)"
+              v-else
+              class="btn btn-success"
+              @click="activate(student.id)"
             >
-                Activate
+              Activate
             </button>
 
-        </td>
+          </td>
 
         </tr>
 
@@ -84,16 +126,18 @@
 import { ref, onMounted } from "vue";
 
 import {
-    getStudents,
-    deactivateStudent,
-    activateStudent
+  getStudents,
+  deactivateStudent,
+  activateStudent,
+  searchStudents
 } from "../../services/adminService";
 
 const students = ref([]);
+const query = ref("");
 
 const loadStudents = async () => {
 
-    students.value = await getStudents();
+  students.value = await getStudents();
 
 };
 
@@ -101,23 +145,36 @@ onMounted(loadStudents);
 
 const deactivate = async (id) => {
 
-    if (!confirm("Deactivate this student?"))
-        return;
+  if (!confirm("Deactivate this student?"))
+    return;
 
-    await deactivateStudent(id);
+  await deactivateStudent(id);
 
-    loadStudents();
+  loadStudents();
 
 };
 
-const activate = async(id)=>{
+const activate = async (id) => {
 
-    if(!confirm("Activate this student?"))
-        return;
+  if (!confirm("Activate this student?"))
+    return;
 
-    await activateStudent(id);
+  await activateStudent(id);
+
+  loadStudents();
+
+};
+
+const search = async () => {
+
+  if (!query.value.trim()) {
 
     loadStudents();
-}; 
+    return;
 
+  }
+
+  students.value = await searchStudents(query.value);
+
+};
 </script>

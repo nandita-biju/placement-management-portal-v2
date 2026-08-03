@@ -5,6 +5,45 @@
       Companies
     </h2>
 
+    <!-- Search Bar -->
+    <div class="row mb-4">
+
+      <div class="col-md-4">
+
+        <input
+          v-model="query"
+          @input="search"
+          class="form-control"
+          placeholder="Search Companies..."
+        />
+
+      </div>
+
+      <div class="col-auto">
+
+        <button
+          class="btn btn-primary"
+          @click="search"
+        >
+          Search
+        </button>
+
+      </div>
+
+      <div class="col-auto">
+
+        <button
+          class="btn btn-secondary"
+          @click="loadCompanies"
+        >
+          Reset
+        </button>
+
+      </div>
+
+    </div>
+
+    <!-- No Companies -->
     <div
       v-if="companies.length === 0"
       class="alert alert-info"
@@ -12,8 +51,9 @@
       No companies found.
     </div>
 
+    <!-- Companies Table -->
     <table
-      v-else
+      v-if="companies.length > 0"
       class="table table-bordered table-hover align-middle"
     >
 
@@ -25,9 +65,7 @@
           <th>Location</th>
           <th>Approval</th>
           <th>Status</th>
-          <th width="320">
-            Actions
-          </th>
+          <th width="320">Actions</th>
         </tr>
 
       </thead>
@@ -69,90 +107,83 @@
 
           <td>
 
-            <!-- Pending Companies -->
+            <!-- Pending -->
             <template v-if="company.approval_status === 'pending'">
 
-                <button
-                    class="btn btn-success btn-sm me-2"
-                    @click="approve(company.id)"
-                >
-                    Approve
-                </button>
+              <button
+                class="btn btn-success btn-sm me-2"
+                @click="approve(company.id)"
+              >
+                Approve
+              </button>
 
-                <button
-                    class="btn btn-danger btn-sm"
-                    @click="reject(company.id)"
-                >
-                    Reject
-                </button>
+              <button
+                class="btn btn-danger btn-sm"
+                @click="reject(company.id)"
+              >
+                Reject
+              </button>
 
             </template>
 
-
-            <!-- Approved Companies -->
+            <!-- Approved -->
             <template v-else-if="company.approval_status === 'approved'">
 
-                <!-- Active -->
-                <template v-if="company.status === 'active'">
+              <template v-if="company.status === 'active'">
 
-                    <button
-                        class="btn btn-warning btn-sm me-2"
-                        @click="blacklist(company.id)"
-                    >
-                        Blacklist
-                    </button>
+                <button
+                  class="btn btn-warning btn-sm me-2"
+                  @click="blacklist(company.id)"
+                >
+                  Blacklist
+                </button>
 
-                    <button
-                        class="btn btn-secondary btn-sm"
-                        @click="deactivate(company.id)"
-                    >
-                        Deactivate
-                    </button>
+                <button
+                  class="btn btn-secondary btn-sm"
+                  @click="deactivate(company.id)"
+                >
+                  Deactivate
+                </button>
 
-                </template>
+              </template>
 
+              <template v-else-if="company.status === 'deactivated'">
 
-                <!-- Deactivated -->
-                <template v-else-if="company.status === 'deactivated'">
+                <button
+                  class="btn btn-primary btn-sm"
+                  @click="activate(company.id)"
+                >
+                  Activate
+                </button>
 
-                    <button
-                        class="btn btn-primary btn-sm"
-                        @click="activate(company.id)"
-                    >
-                        Activate
-                    </button>
+              </template>
 
-                </template>
+              <template v-else-if="company.status === 'blacklisted'">
 
+                <button
+                  class="btn btn-success btn-sm"
+                  @click="unblacklist(company.id)"
+                >
+                  Unblacklist
+                </button>
 
-                <!-- Blacklisted -->
-                <template v-else-if="company.status === 'blacklisted'">
-
-                    <button
-                        class="btn btn-success btn-sm"
-                        @click="unblacklist(company.id)"
-                    >
-                        Unblacklist
-                    </button>
-
-                </template>
+              </template>
 
             </template>
-
 
             <!-- Rejected -->
             <template v-else>
 
-                <button
-                    class="btn btn-success btn-sm"
-                    @click="approve(company.id)"
-                >
-                    Approve
-                </button>
+              <button
+                class="btn btn-success btn-sm"
+                @click="approve(company.id)"
+              >
+                Approve
+              </button>
 
             </template>
 
-        </td>
+          </td>
 
         </tr>
 
@@ -167,20 +198,22 @@
 import { ref, onMounted } from "vue";
 
 import {
-    getCompanies,
-    approveCompany,
-    rejectCompany,
-    activateCompany,
-    deactivateCompany,
-    blacklistCompany,
-    unblacklistCompany
+  getCompanies,
+  approveCompany,
+  rejectCompany,
+  activateCompany,
+  deactivateCompany,
+  blacklistCompany,
+  unblacklistCompany,
+  searchCompanies
 } from "../../services/adminService";
 
 const companies = ref([]);
+const query = ref("");
 
 const loadCompanies = async () => {
 
-    companies.value = await getCompanies();
+  companies.value = await getCompanies();
 
 };
 
@@ -188,76 +221,83 @@ onMounted(loadCompanies);
 
 const approve = async (id) => {
 
-    await approveCompany(id);
-
-    loadCompanies();
+  await approveCompany(id);
+  loadCompanies();
 
 };
 
 const reject = async (id) => {
 
-    await rejectCompany(id);
-
-    loadCompanies();
+  await rejectCompany(id);
+  loadCompanies();
 
 };
 
 const activate = async (id) => {
 
-    await activateCompany(id);
-
-    loadCompanies();
+  await activateCompany(id);
+  loadCompanies();
 
 };
 
 const deactivate = async (id) => {
 
-    await deactivateCompany(id);
-
-    loadCompanies();
+  await deactivateCompany(id);
+  loadCompanies();
 
 };
 
 const blacklist = async (id) => {
 
-    await blacklistCompany(id);
-
-    loadCompanies();
+  await blacklistCompany(id);
+  loadCompanies();
 
 };
 
 const unblacklist = async (id) => {
 
-    await unblacklistCompany(id);
-
-    loadCompanies();
+  await unblacklistCompany(id);
+  loadCompanies();
 
 };
 
 const approvalBadge = (status) => {
 
-    if(status==="approved")
-        return "bg-success";
+  if (status === "approved")
+    return "bg-success";
 
-    if(status==="rejected")
-        return "bg-danger";
+  if (status === "rejected")
+    return "bg-danger";
 
-    return "bg-warning text-dark";
+  return "bg-warning text-dark";
 
 };
 
 const statusBadge = (status) => {
 
-    if(status==="active")
-        return "bg-success";
+  if (status === "active")
+    return "bg-success";
 
-    if(status==="blacklisted")
-        return "bg-dark";
+  if (status === "blacklisted")
+    return "bg-dark";
 
-    if(status==="deactivated")
-        return "bg-secondary";
+  if (status === "deactivated")
+    return "bg-secondary";
 
-    return "bg-warning text-dark";
+  return "bg-warning text-dark";
+
+};
+
+const search = async () => {
+
+  if (!query.value.trim()) {
+
+    loadCompanies();
+    return;
+
+  }
+
+  companies.value = await searchCompanies(query.value);
 
 };
 </script>
