@@ -6,6 +6,17 @@
         My Applications
     </h2>
 
+    <div class="d-flex justify-content-end mb-3">
+
+        <button
+            class="btn btn-success"
+            @click="exportCSV"
+        >
+            Export CSV
+        </button>
+
+    </div>
+
     <div
         v-if="applications.length === 0"
         class="alert alert-info"
@@ -57,6 +68,7 @@
 import { ref, onMounted } from "vue";
 
 import { getMyApplications } from "../../services/applicationService";
+import { exportApplications } from "../../services/applicationService";
 
 const applications = ref([]);
 
@@ -96,6 +108,32 @@ const formatDate = (date)=>{
 
     return new Date(date).toLocaleDateString();
 
+};
+
+const exportCSV = async () => {
+    try {
+
+        const blob = await exportApplications();
+
+        const url = window.URL.createObjectURL(blob);
+
+        const link = document.createElement("a");
+
+        link.href = url;
+        link.download = "applications.csv";
+
+        document.body.appendChild(link);
+
+        link.click();
+
+        link.remove();
+
+        window.URL.revokeObjectURL(url);
+
+    }
+    catch (err) {
+        alert("Failed to export applications.");
+    }
 };
 
 </script>

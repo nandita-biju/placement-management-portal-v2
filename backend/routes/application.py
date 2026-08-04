@@ -5,6 +5,10 @@ from flask_jwt_extended import (
     get_jwt_identity,
     get_jwt
 )
+import csv
+import io
+
+from flask import send_file
 
 from extensions import db
 
@@ -209,3 +213,55 @@ def update_application_status(application_id):
     return jsonify({
         "message": "Application status updated successfully"
     }), 200
+
+@application_bp.route("/export", methods=["GET"])
+@jwt_required()
+def export_applications():
+
+    current_user_id = get_jwt_identity()
+
+    student = Student.query.filter_by(user_id=current_user_id).first()
+
+    if not student:
+        return jsonify({"message": "Student profile not found"}), 404
+
+    applications = Application.query.filter_by(
+        student_id=student.id
+    ).all()
+
+    output = io.StringIO()
+
+    writer = csv.writer(output)
+
+    writer.writerow([
+        "Application ID",
+        "Company",
+        "Drive",
+        "Status",
+        "Applied On"
+    ])
+
+    for app in applications:
+
+        writer.writerow([
+            app.id,
+            app.job.company.company_name,
+            app.job.title,
+            app.status,
+            app.applied_at.strftime("%d-%m-%Y")
+        ])
+
+    mem = io.BytesIO()
+
+    mem.write(output.getvalue().encode("utf-8"))
+
+    mem.seek(0)
+
+    output.close()
+
+    return send_file(
+        mem,
+        mimetype="text/csv",
+        as_attachment=True,
+        download_name="applications.csv"
+    )

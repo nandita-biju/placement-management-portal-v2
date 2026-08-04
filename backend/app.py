@@ -1,9 +1,12 @@
-from flask import Flask
+import os
+from flask import Flask, send_from_directory
 from flask_cors import CORS
 from config import Config
 from extensions import db, bcrypt
 from models.user import User
 from flask_jwt_extended import JWTManager
+from celery_utils import make_celery
+
 from routes.auth import auth_bp
 from routes.dashboard import dashboard_bp
 
@@ -20,13 +23,15 @@ from routes.admin import admin_bp
 
 app = Flask(__name__)
 
-CORS(app, resources={r"/*": {"origins": "http://localhost:5173"}})
+CORS(app, resources={r"/*": {"origins": "*"}})
 
 app.config.from_object(Config)
 
 db.init_app(app)
 bcrypt.init_app(app)
 jwt = JWTManager(app)
+
+celery_app = make_celery(app)
 
 with app.app_context():
     db.create_all()
@@ -58,6 +63,11 @@ app.register_blueprint(admin_bp, url_prefix="/admin")
 @app.route("/")
 def home():
     return {"message": "Placement Portal Backend Running"}
+
+@app.route("/exports/<path:filename>", methods=["GET"])
+def download_export(filename):
+    exports_dir = os.path.join(app.root_path, "exports")
+    return send_from_directory(exports_dir, filename, as_attachment=True)
 
 if __name__ == "__main__":
     app.run(debug=True)

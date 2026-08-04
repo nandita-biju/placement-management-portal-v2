@@ -13,3 +13,12 @@ export const getMyApplications = async () => {
 
     return response.data;
 };
+
+
+export const exportApplications = async () => {
+    const response = await api.get("/applications/export", {
+        responseType: "blob"
+    });
+
+    return response.data;
+};

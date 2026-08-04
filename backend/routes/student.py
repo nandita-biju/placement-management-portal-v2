@@ -193,4 +193,68 @@ def get_student_by_id(student_id):
         "cgpa":student.cgpa,
         "graduation_year":student.graduation_year
 
-    }),200
+    }),200
+
+from celery.result import AsyncResult
+from tasks.export_tasks import export_student_applications
+
+@student_bp.route("/export-applications", methods=["POST"])
+@jwt_required()
+def trigger_export_applications():
+
+    claims = get_jwt()
+
+    if claims["role"] != "student":
+        return jsonify({
+            "message": "Access denied"
+        }), 403
+
+    user_id = int(get_jwt_identity())
+
+    student = Student.query.filter_by(
+        user_id=user_id
+    ).first()
+
+    if not student:
+        return jsonify({
+            "message": "Student profile not found"
+        }), 404
+
+    # Trigger Celery task
+    task = export_student_applications.delay(student.id)
+
+    return jsonify({
+        "message": "Export started successfully",
+        "task_id": task.id
+    }), 202
+
+@student_bp.route("/export-status/<task_id>", methods=["GET"])
+@jwt_required()
+def get_export_status(task_id):
+
+    claims = get_jwt()
+
+    if claims["role"] != "student":
+        return jsonify({
+            "message": "Access denied"
+        }), 403
+
+    res = AsyncResult(task_id)
+
+    if res.state in ["PENDING", "STARTED", "RETRY"]:
+        return jsonify({
+            "status": "Processing"
+        }), 200
+
+    elif res.state == "SUCCESS":
+        filename = res.result if isinstance(res.result, str) else f"applications_{get_jwt_identity()}.csv"
+        return jsonify({
+            "status": "Completed",
+            "download_url": f"/exports/{filename}"
+        }), 200
+
+    else:
+        return jsonify({
+            "status": "Failed"
+        }), 200
+
