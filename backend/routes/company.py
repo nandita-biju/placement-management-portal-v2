@@ -1,4 +1,5 @@
 from flask import Blueprint, request, jsonify
+from extensions import cache
 
 from flask_jwt_extended import (
     jwt_required,
@@ -50,6 +51,7 @@ def create_company_profile():
 
     db.session.add(company)
     db.session.commit()
+    cache.clear()
 
     return jsonify({
         "message": "Company profile created successfully"
@@ -58,6 +60,7 @@ def create_company_profile():
 
 @company_bp.route("/profile", methods=["GET"])
 @jwt_required()
+@cache.cached(timeout=300)
 def get_company_profile():
 
     claims = get_jwt()
@@ -117,6 +120,7 @@ def update_company_profile():
     company.website = data.get("website")
 
     db.session.commit()
+    cache.clear()
 
     return jsonify({
         "message": "Company profile updated successfully"

@@ -35,6 +35,7 @@ cache.init_app(app)
 mail.init_app(app)
 jwt = JWTManager(app)
 
+
 celery_app = make_celery(app)
 import tasks.reminder_tasks
 import tasks.export_tasks

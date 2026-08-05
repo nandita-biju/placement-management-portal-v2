@@ -1,4 +1,5 @@
 from flask import Blueprint, request, jsonify
+from extensions import cache
 
 from models.job import JobPosition
 from flask_jwt_extended import (
@@ -54,6 +55,7 @@ def create_student_profile():
 
     db.session.add(profile)
     db.session.commit()
+    cache.clear()
 
     return jsonify({
         "message": "Student profile created successfully"
@@ -62,6 +64,7 @@ def create_student_profile():
 
 @student_bp.route("/profile", methods=["GET"])
 @jwt_required()
+@cache.cached(timeout=300)
 def get_student_profile():
 
     claims = get_jwt()
@@ -127,6 +130,7 @@ def update_student_profile():
     student.graduation_year = int(data["graduation_year"]) if data.get("graduation_year") is not None and data.get("graduation_year") != "" else None
 
     db.session.commit()
+    cache.clear()
 
     return jsonify({
         "message": "Profile updated successfully"
@@ -257,4 +261,4 @@ def get_export_status(task_id):
         return jsonify({
             "status": "Failed"
         }), 200
-
+

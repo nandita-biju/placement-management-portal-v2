@@ -1,4 +1,5 @@
 from flask import Blueprint, request, jsonify
+from extensions import cache
 
 from flask_jwt_extended import (
     jwt_required,
@@ -79,6 +80,7 @@ def create_job():
 
     db.session.add(job)
     db.session.commit()
+    cache.clear()
 
     return jsonify({
         "message": "Job created successfully"
@@ -86,6 +88,7 @@ def create_job():
 
 
 @job_bp.route("/all", methods=["GET"])
+@cache.cached(timeout=300)
 def get_all_jobs():
 
     jobs = JobPosition.query.filter_by(
@@ -212,4 +215,4 @@ def get_job_applications(job_id):
             "status": application.status
         })
 
-    return jsonify(output), 200
+    return jsonify(output), 200
