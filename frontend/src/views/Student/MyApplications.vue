@@ -11,8 +11,9 @@
         <button
             class="btn btn-success"
             @click="exportCSV"
+            :disabled="exporting"
         >
-            Export CSV
+            {{ exporting ? "Generating..." : "Export CSV" }}
         </button>
 
     </div>
@@ -66,12 +67,14 @@
 <script setup>
 
 import { ref, onMounted } from "vue";
-
-import { getMyApplications } from "../../services/applicationService";
-import { exportApplications } from "../../services/applicationService";
+import {
+    getMyApplications,
+    exportApplications,
+    checkExportStatus
+} from "../../services/applicationService";
 
 const applications = ref([]);
-
+const exporting = ref(false);
 onMounted(async ()=>{
 
     applications.value = await getMyApplications();
@@ -111,29 +114,51 @@ const formatDate = (date)=>{
 };
 
 const exportCSV = async () => {
+
+    exporting.value = true;
+
     try {
 
-        const blob = await exportApplications();
+        const response = await exportApplications();
 
-        const url = window.URL.createObjectURL(blob);
+        const taskId = response.task_id;
 
-        const link = document.createElement("a");
+        const interval = setInterval(async () => {
 
-        link.href = url;
-        link.download = "applications.csv";
+            const status = await checkExportStatus(taskId);
 
-        document.body.appendChild(link);
+            if (status.status === "Completed") {
 
-        link.click();
+                clearInterval(interval);
 
-        link.remove();
+                exporting.value = false;
 
-        window.URL.revokeObjectURL(url);
+                const link = document.createElement("a");
+
+                link.href = `http://127.0.0.1:5000/exports/${status.filename}`;
+
+                link.download = status.filename;
+
+                document.body.appendChild(link);
+
+                link.click();
+
+                link.remove();
+
+            }
+
+        }, 2000);
 
     }
-    catch (err) {
-        alert("Failed to export applications.");
+
+    catch {
+
+        exporting.value = false;
+
+        alert("Export failed.");
+
     }
+
 };
 
 </script>

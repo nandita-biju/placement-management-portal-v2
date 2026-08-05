@@ -2,7 +2,7 @@ import os
 from flask import Flask, send_from_directory
 from flask_cors import CORS
 from config import Config
-from extensions import db, bcrypt
+from extensions import db, bcrypt, cache, mail
 from models.user import User
 from flask_jwt_extended import JWTManager
 from celery_utils import make_celery
@@ -21,6 +21,8 @@ from routes.job import job_bp
 from routes.application import application_bp
 from routes.admin import admin_bp
 
+from tasks import export_tasks, reminder_tasks
+
 app = Flask(__name__)
 
 CORS(app, resources={r"/*": {"origins": "*"}})
@@ -29,9 +31,13 @@ app.config.from_object(Config)
 
 db.init_app(app)
 bcrypt.init_app(app)
+cache.init_app(app)
+mail.init_app(app)
 jwt = JWTManager(app)
 
 celery_app = make_celery(app)
+import tasks.reminder_tasks
+import tasks.export_tasks
 
 with app.app_context():
     db.create_all()
@@ -68,6 +74,18 @@ def home():
 def download_export(filename):
     exports_dir = os.path.join(app.root_path, "exports")
     return send_from_directory(exports_dir, filename, as_attachment=True)
+
+from tasks.reminder_tasks import send_daily_reminders
+
+@app.route("/test-reminder")
+def test_reminder():
+
+    task = send_daily_reminders.delay()
+
+    return {
+        "message": "Reminder task started",
+        "task_id": task.id
+    }
 
 if __name__ == "__main__":
     app.run(debug=True)

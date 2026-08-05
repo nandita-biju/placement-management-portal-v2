@@ -17,6 +17,8 @@ from models.company import Company
 from models.job import JobPosition
 from models.application import Application
 
+from celery.result import AsyncResult
+from flask import current_app
 
 from datetime import datetime, date
 
@@ -214,54 +216,41 @@ def update_application_status(application_id):
         "message": "Application status updated successfully"
     }), 200
 
+from tasks.export_tasks import export_student_applications
+
 @application_bp.route("/export", methods=["GET"])
 @jwt_required()
 def export_applications():
 
-    current_user_id = get_jwt_identity()
+    user_id = get_jwt_identity()
 
-    student = Student.query.filter_by(user_id=current_user_id).first()
+    student = Student.query.filter_by(user_id=user_id).first()
 
     if not student:
         return jsonify({"message": "Student profile not found"}), 404
 
-    applications = Application.query.filter_by(
-        student_id=student.id
-    ).all()
+    task = export_student_applications.delay(student.id)
 
-    output = io.StringIO()
+    return jsonify({
+        "message": "Export started",
+        "task_id": task.id
+    }), 202
 
-    writer = csv.writer(output)
+@application_bp.route("/export/status/<task_id>", methods=["GET"])
+def export_status(task_id):
 
-    writer.writerow([
-        "Application ID",
-        "Company",
-        "Drive",
-        "Status",
-        "Applied On"
-    ])
+    task = AsyncResult(task_id, app=current_app.extensions["celery"])
 
-    for app in applications:
+    if task.state == "PENDING":
+        return jsonify({"status": "Pending"})
 
-        writer.writerow([
-            app.id,
-            app.job.company.company_name,
-            app.job.title,
-            app.status,
-            app.applied_at.strftime("%d-%m-%Y")
-        ])
+    elif task.state == "SUCCESS":
+        return jsonify({
+            "status": "Completed",
+            "filename": task.result
+        })
 
-    mem = io.BytesIO()
+    elif task.state == "FAILURE":
+        return jsonify({"status": "Failed"})
 
-    mem.write(output.getvalue().encode("utf-8"))
-
-    mem.seek(0)
-
-    output.close()
-
-    return send_file(
-        mem,
-        mimetype="text/csv",
-        as_attachment=True,
-        download_name="applications.csv"
-    )
+    return jsonify({"status": task.state})
