@@ -29,10 +29,19 @@ def make_celery(app):
     celery_app.conf.timezone = "Asia/Kolkata"
 
     celery_app.conf.beat_schedule = {
+
         "daily-reminder-email": {
             "task": "tasks.reminder_tasks.send_daily_reminders",
-            "schedule": crontab(hour=18, minute=20),
+            "schedule": crontab(hour=9, minute=0),
         },
+
+        "monthly-report": {
+            "task": "tasks.report_tasks.send_monthly_report",
+
+            # FOR TESTING ONLY
+            "schedule": crontab(hour=18, minute=35),
+        },
+
     }
 
     celery_app.set_default()

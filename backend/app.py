@@ -38,6 +38,7 @@ jwt = JWTManager(app)
 celery_app = make_celery(app)
 import tasks.reminder_tasks
 import tasks.export_tasks
+from tasks import report_tasks
 
 with app.app_context():
     db.create_all()
@@ -48,7 +49,7 @@ with app.app_context():
         hashed_password = bcrypt.generate_password_hash("admin123").decode("utf-8")
 
         admin = User(
-            email="admin@placementportal.com",
+            email="placementportal217@gmail.com",
             password=hashed_password,
             role="admin"
         )

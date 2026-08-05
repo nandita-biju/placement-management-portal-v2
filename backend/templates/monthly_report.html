@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Monthly Placement Portal Report</title>
+</head>
+
+<body style="font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px;">
+
+    <div style="max-width: 600px; margin: auto; background: white; padding: 25px; border-radius: 10px;">
+
+        <h2 style="text-align:center; color:#2c3e50;">
+            Monthly Placement Portal Report
+        </h2>
+
+        <p>Hello Admin,</p>
+
+        <p>
+            Here is the summary of placement portal activity for this month.
+        </p>
+
+        <table style="width:100%; border-collapse: collapse; margin-top:20px;">
+
+            <tr>
+                <td><strong>Total Students</strong></td>
+                <td>{{ total_students }}</td>
+            </tr>
+
+            <tr>
+                <td><strong>Total Companies</strong></td>
+                <td>{{ total_companies }}</td>
+            </tr>
+
+            <tr>
+                <td><strong>Total Placement Drives</strong></td>
+                <td>{{ total_drives }}</td>
+            </tr>
+
+            <tr>
+                <td><strong>Total Applications</strong></td>
+                <td>{{ total_applications }}</td>
+            </tr>
+
+            <tr>
+                <td><strong>Shortlisted Students</strong></td>
+                <td>{{ shortlisted }}</td>
+            </tr>
+
+            <tr>
+                <td><strong>Selected Students</strong></td>
+                <td>{{ selected }}</td>
+            </tr>
+
+            <tr>
+                <td><strong>Rejected Students</strong></td>
+                <td>{{ rejected }}</td>
+            </tr>
+
+        </table>
+
+        <hr style="margin-top:30px;">
+
+        <p style="font-size:14px; color:gray;">
+            This is an automatically generated report from the Placement Portal.
+        </p>
+
+    </div>
+
+</body>
+
+</html>
