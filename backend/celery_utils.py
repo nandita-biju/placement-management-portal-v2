@@ -1,4 +1,6 @@
 from celery import Celery, Task
+from celery.schedules import crontab
+
 
 def make_celery(app):
     class FlaskTask(Task):
@@ -6,13 +8,34 @@ def make_celery(app):
             with app.app_context():
                 return self.run(*args, **kwargs)
 
+    broker = "redis://localhost:6379/0"
+    backend = "redis://localhost:6379/0"
+
+    # Read the UPPERCASE keys that Flask actually loaded from Config
     celery_app = Celery(
         app.import_name,
-        backend=app.config.get("CELERY_RESULT_BACKEND", "redis://localhost:6379/0"),
-        broker=app.config.get("CELERY_BROKER_URL", "redis://localhost:6379/0"),
+        broker=broker,
+        backend=backend,
         task_cls=FlaskTask
     )
+
     celery_app.conf.update(app.config)
+
+    # Explicitly set the Celery-native lowercase keys to guarantee
+    # they are not overridden by conf.update or left as defaults
+    celery_app.conf.broker_url = broker
+    celery_app.conf.result_backend = backend
+
+    celery_app.conf.timezone = "Asia/Kolkata"
+
+    celery_app.conf.beat_schedule = {
+        "daily-reminder-email": {
+            "task": "tasks.reminder_tasks.send_daily_reminders",
+            "schedule": crontab(hour=18, minute=20),
+        },
+    }
+
     celery_app.set_default()
     app.extensions["celery"] = celery_app
+
     return celery_app
