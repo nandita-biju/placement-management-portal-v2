@@ -168,6 +168,11 @@ const routes = [
                 component: ManageApplications
             },
 
+            {
+                path: "/admin/reports",
+                component: () => import("../views/admin/AdminReports.vue")
+            }
+
         ]
     }
 ];

@@ -37,17 +37,31 @@
         <p>{{ profile.experience }}</p>
     </div>
 
-    <div class="col-md-12 mb-3">
-        <strong>Resume</strong>
-        <br>
+    <div class="row mb-3">
 
-        <a
-            :href="profile.resume_link"
-            target="_blank"
-            class="btn btn-primary mt-2"
-        >
+        <div class="col-md-3">
+            <strong>Resume</strong>
+        </div>
+
+        <div class="col-md-9">
+
+            <button
+            v-if="profile.resume_link"
+            class="btn btn-primary btn-sm"
+            @click="handleViewResume"
+            >
             View Resume
-        </a>
+            </button>
+
+            <span
+            v-else
+            class="text-muted"
+            >
+            No resume uploaded
+            </span>
+
+        </div>
+
     </div>
 
 </div>
@@ -55,7 +69,10 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
-import { getProfile } from "../../services/studentService";
+import { useRouter } from "vue-router";
+import { getProfile, viewResume } from "../../services/studentService";
+
+const router = useRouter();
 
 const profile = ref({});
 
@@ -69,7 +86,7 @@ onMounted(async () => {
 
     catch(error){
 
-        if(error.response.status === 404){
+        if(error.response && error.response.status === 404){
 
             router.push("/student/profile/create");
 
@@ -78,4 +95,38 @@ onMounted(async () => {
     }
 
 });
+
+const handleViewResume = async () => {
+
+    try {
+
+        const response = await viewResume();
+
+        const blob = new Blob(
+            [response.data],
+            { type: "application/pdf" }
+        );
+
+        const fileURL = URL.createObjectURL(blob);
+
+        const newTab = window.open(fileURL, "_blank");
+
+        if (newTab) {
+            newTab.addEventListener("beforeunload", () => {
+                URL.revokeObjectURL(fileURL);
+            });
+        }
+
+    }
+
+    catch (error) {
+
+        alert(
+            error.response?.data?.message ||
+            "Unable to open resume"
+        );
+
+    }
+
+};
 </script>

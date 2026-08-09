@@ -110,12 +110,20 @@
 
                 <div class="col-md-9">
 
-                    <a
-                        :href="student.resume_link"
-                        target="_blank"
+                    <button
+                        v-if="student.resume_link"
+                        class="btn btn-primary btn-sm"
+                        @click="handleViewResume"
                     >
                         View Resume
-                    </a>
+                    </button>
+
+                    <span
+                        v-else
+                        class="text-muted"
+                    >
+                        No resume uploaded
+                    </span>
 
                 </div>
 
@@ -134,6 +142,7 @@
 import { ref, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import { getStudentById } from "../../services/studentService";
+import api from "../../api/axios";
 
 const route = useRoute();
 
@@ -156,5 +165,38 @@ onMounted(async () => {
     }
 
 });
+
+const handleViewResume = async () => {
+
+    try {
+
+        const response = await api.get(
+            `/student/student/${route.params.studentId}/resume`,
+            {
+                responseType: "blob"
+            }
+        );
+
+        const blob = new Blob(
+            [response.data],
+            { type: "application/pdf" }
+        );
+
+        const fileURL = URL.createObjectURL(blob);
+
+        window.open(fileURL, "_blank");
+
+    }
+
+    catch (error) {
+
+        alert(
+            error.response?.data?.message ||
+            "Unable to open resume"
+        );
+
+    }
+
+};
 
 </script>

@@ -66,6 +66,18 @@
         <div class="row mb-3">
 
           <div class="col-md-3">
+            <strong>HR Contact</strong>
+          </div>
+
+          <div class="col-md-9">
+            {{ profile.hr_contact }}
+          </div>
+
+        </div>
+
+        <div class="row mb-3">
+
+          <div class="col-md-3">
             <strong>Website</strong>
           </div>
 
@@ -80,7 +92,8 @@
 
         </div>
 
-        <div class="row">
+        <!-- Approval Status -->
+        <div class="row mb-3">
 
           <div class="col-md-3">
             <strong>Approval Status</strong>
@@ -90,9 +103,30 @@
 
             <span
               class="badge"
-              :class="badgeClass"
+              :class="approvalBadgeClass"
             >
               {{ profile.approval_status }}
+            </span>
+
+          </div>
+
+        </div>
+
+
+        <!-- Account Status -->
+        <div class="row">
+
+          <div class="col-md-3">
+            <strong>Account Status</strong>
+          </div>
+
+          <div class="col-md-9">
+
+            <span
+              class="badge"
+              :class="accountStatusBadgeClass"
+            >
+              {{ accountStatusText }}
             </span>
 
           </div>
@@ -146,5 +180,46 @@ const badgeClass = computed(() => {
 
     return "bg-warning text-dark";
 
+});
+
+const approvalBadgeClass = computed(() => {
+
+  if (profile.value.approval_status === "approved") {
+    return "bg-success";
+  }
+
+  if (profile.value.approval_status === "rejected") {
+    return "bg-danger";
+  }
+
+  return "bg-warning text-dark";
+});
+
+
+const accountStatusText = computed(() => {
+
+  if (profile.value.status === "deactivated") {
+    return "Deactivated";
+  }
+
+  if (profile.value.status === "blacklisted") {
+    return "Blacklisted";
+  }
+
+  return "Active";
+});
+
+
+const accountStatusBadgeClass = computed(() => {
+
+  if (profile.value.status === "deactivated") {
+    return "bg-secondary";
+  }
+
+  if (profile.value.status === "blacklisted") {
+    return "bg-danger";
+  }
+
+  return "bg-success";
 });
 </script>

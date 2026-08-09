@@ -16,8 +16,11 @@ class Company(db.Model):
     industry = db.Column(db.String(100))
 
     location = db.Column(db.String(100))
+    
 
     website = db.Column(db.String(200))
+
+    hr_contact = db.Column(db.String(100))
 
     approval_status = db.Column(
         db.String(20),

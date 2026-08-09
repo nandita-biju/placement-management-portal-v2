@@ -1,72 +1,108 @@
 <template>
-  <div class="container">
+  <div class="card shadow">
 
-    <div class="card shadow">
+    <div class="card-header">
+      <h3>Edit Company Profile</h3>
+    </div>
 
-      <div class="card-header">
-        <h3>Edit Company Profile</h3>
-      </div>
+    <div class="card-body">
 
-      <div class="card-body">
+      <form @submit.prevent="saveProfile">
 
-        <form @submit.prevent="saveProfile">
+        <!-- Company Name -->
+        <div class="mb-3">
+          <label class="form-label">
+            Company Name
+          </label>
 
-          <div class="mb-3">
-            <label class="form-label">Company Name</label>
-            <input
-              v-model="profile.company_name"
-              class="form-control"
-              required
-            >
-          </div>
+          <input
+            v-model="profile.company_name"
+            type="text"
+            class="form-control"
+            required
+          >
+        </div>
 
-          <div class="mb-3">
-            <label class="form-label">Industry</label>
-            <input
-              v-model="profile.industry"
-              class="form-control"
-            >
-          </div>
 
-          <div class="mb-3">
-            <label class="form-label">Location</label>
-            <input
-              v-model="profile.location"
-              class="form-control"
-            >
-          </div>
+        <!-- Industry -->
+        <div class="mb-3">
+          <label class="form-label">
+            Industry
+          </label>
 
-          <div class="mb-3">
-            <label class="form-label">Website</label>
-            <input
-              v-model="profile.website"
-              class="form-control"
-              placeholder="https://company.com"
-            >
-          </div>
+          <input
+            v-model="profile.industry"
+            type="text"
+            class="form-control"
+          >
+        </div>
 
-          <div class="d-flex gap-2">
 
-            <button
-              class="btn btn-success"
-              type="submit"
-            >
-              Save Changes
-            </button>
+        <!-- Location -->
+        <div class="mb-3">
+          <label class="form-label">
+            Location
+          </label>
 
-            <button
-              class="btn btn-secondary"
-              type="button"
-              @click="goBack"
-            >
-              Cancel
-            </button>
+          <input
+            v-model="profile.location"
+            type="text"
+            class="form-control"
+          >
+        </div>
 
-          </div>
 
-        </form>
+        <!-- HR Contact -->
+        <div class="mb-3">
+          <label class="form-label">
+            HR Contact
+          </label>
 
-      </div>
+          <input
+            v-model="profile.hr_contact"
+            type="text"
+            class="form-control"
+            placeholder="Enter HR contact"
+          >
+        </div>
+
+
+        <!-- Website -->
+        <div class="mb-3">
+          <label class="form-label">
+            Website
+          </label>
+
+          <input
+            v-model="profile.website"
+            type="url"
+            class="form-control"
+            placeholder="https://company.com"
+          >
+        </div>
+
+
+        <!-- Buttons -->
+        <div class="d-flex gap-2">
+
+          <button
+            type="submit"
+            class="btn btn-success"
+          >
+            Save Changes
+          </button>
+
+          <button
+            type="button"
+            class="btn btn-secondary"
+            @click="goBack"
+          >
+            Cancel
+          </button>
+
+        </div>
+
+      </form>
 
     </div>
 

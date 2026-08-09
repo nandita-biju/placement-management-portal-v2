@@ -1,183 +1,207 @@
 <template>
   <div class="container">
-
     <h2 class="mb-4">
       Placement Drives
     </h2>
 
+    <!-- Search -->
+    <div class="row mb-4">
+      <div class="col-md-5">
+        <input
+          v-model="query"
+          class="form-control"
+          placeholder="Search company, job title, or skills..."
+        >
+      </div>
+
+      <div class="col-auto">
+        <button
+          class="btn btn-secondary"
+          @click="query = ''"
+        >
+          Reset
+        </button>
+      </div>
+    </div>
+
+    <p class="text-muted">
+      {{ filteredDrives.length }}
+      {{ filteredDrives.length === 1 ? "drive" : "drives" }}
+      found.
+    </p>
+
+    <!-- No Drives -->
     <div
-      v-if="drives.length === 0"
+      v-if="filteredDrives.length === 0"
       class="alert alert-info"
     >
       No drives found.
     </div>
 
-    <table
+    <!-- Drives Table -->
+    <div
       v-else
-      class="table table-bordered table-hover align-middle"
+      class="table-responsive"
     >
+      <table class="table table-bordered table-hover align-middle">
+        <thead class="table-dark">
+          <tr>
+            <th>Company</th>
+            <th>Job Title</th>
+            <th>Salary</th>
+            <th>Eligible Branch</th>
+            <th>Min CGPA</th>
+            <th>Batch</th>
+            <th>Deadline</th>
+            <th>Status</th>
+            <th width="180">
+              Actions
+            </th>
+          </tr>
+        </thead>
 
-      <thead class="table-dark">
+        <tbody>
+          <tr
+            v-for="drive in filteredDrives"
+            :key="drive.id"
+          >
+            <td>{{ drive.company_name }}</td>
 
-        <tr>
-          <th>Company</th>
-          <th>Job Title</th>
-          <th>Salary</th>
-          <th>Eligible Branch</th>
-          <th>Min CGPA</th>
-          <th>Batch</th>
-          <th>Deadline</th>
-          <th>Status</th>
-          <th width="180">
-            Actions
-          </th>
-        </tr>
+            <td>{{ drive.title }}</td>
 
-      </thead>
+            <td>{{ drive.salary || "Not specified" }}</td>
 
-      <tbody>
+            <td>{{ drive.eligible_branch || "All" }}</td>
 
-        <tr
-          v-for="drive in drives"
-          :key="drive.id"
-        >
+            <td>
+              {{
+                drive.min_cgpa !== null &&
+                drive.min_cgpa !== undefined
+                  ? drive.min_cgpa
+                  : "None"
+              }}
+            </td>
 
-          <td>{{ drive.company_name }}</td>
+            <td>
+              {{ drive.eligible_graduation_year || "All" }}
+            </td>
 
-          <td>{{ drive.title }}</td>
+            <td>
+              {{ drive.application_deadline || "N/A" }}
+            </td>
 
-          <td>{{ drive.salary }}</td>
-
-          <td>{{ drive.eligible_branch || 'All' }}</td>
-
-          <td>{{ drive.min_cgpa !== null && drive.min_cgpa !== undefined ? drive.min_cgpa : 'None' }}</td>
-
-          <td>{{ drive.eligible_graduation_year || 'All' }}</td>
-
-          <td>{{ drive.application_deadline || 'N/A' }}</td>
-
-          <td>
-
-            <span
-              class="badge"
-              :class="statusBadge(drive.status)"
-            >
-              {{ drive.status }}
-            </span>
-
-          </td>
-
-
-          <td>
-
-            <!-- Pending -->
-            <template v-if="drive.status === 'pending'">
-
-              <button
-                class="btn btn-success btn-sm me-2"
-                @click="approve(drive.id)"
+            <td>
+              <span
+                class="badge"
+                :class="statusBadge(drive.status)"
               >
-                Approve
-              </button>
+                {{ drive.status }}
+              </span>
+            </td>
 
-              <button
-                class="btn btn-danger btn-sm"
-                @click="reject(drive.id)"
-              >
-                Reject
-              </button>
+            <td>
+              <template v-if="drive.status === 'pending'">
+                <button
+                  class="btn btn-success btn-sm me-2"
+                  @click="approve(drive.id)"
+                >
+                  Approve
+                </button>
 
-            </template>
+                <button
+                  class="btn btn-danger btn-sm"
+                  @click="reject(drive.id)"
+                >
+                  Reject
+                </button>
+              </template>
 
-            <!-- Approved -->
-            <template v-else-if="drive.status === 'approved'">
+              <template v-else-if="drive.status === 'approved'">
+                <button
+                  class="btn btn-danger btn-sm"
+                  @click="reject(drive.id)"
+                >
+                  Reject
+                </button>
+              </template>
 
-              <button
-                class="btn btn-danger btn-sm"
-                @click="reject(drive.id)"
-              >
-                Reject
-              </button>
-
-            </template>
-
-            <!-- Rejected -->
-            <template v-else>
-
-              <button
-                class="btn btn-success btn-sm"
-                @click="approve(drive.id)"
-              >
-                Approve
-              </button>
-
-            </template>
-
-          </td>
-
-        </tr>
-
-      </tbody>
-
-    </table>
-
+              <template v-else>
+                <button
+                  class="btn btn-success btn-sm"
+                  @click="approve(drive.id)"
+                >
+                  Approve
+                </button>
+              </template>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, computed, onMounted } from "vue";
 
 import {
-    getDrives,
-    approveDrive,
-    rejectDrive
+  getDrives,
+  approveDrive,
+  rejectDrive
 } from "../../services/adminService";
 
 const drives = ref([]);
+const query = ref("");
 
 const loadDrives = async () => {
-
-    try {
-
-        drives.value = await getDrives();
-
-    }
-
-    catch (error) {
-
-        console.log(error);
-
-    }
-
+  try {
+    drives.value = await getDrives();
+  } catch (error) {
+    console.log(error);
+  }
 };
 
-onMounted(loadDrives);
+const filteredDrives = computed(() => {
+  const searchText = query.value.trim().toLowerCase();
+
+  return drives.value.filter((drive) => {
+    return (
+      (drive.company_name || "")
+        .toLowerCase()
+        .includes(searchText) ||
+
+      (drive.title || "")
+        .toLowerCase()
+        .includes(searchText) ||
+
+      (drive.skills_required || "")
+        .toLowerCase()
+        .includes(searchText)
+    );
+  });
+});
 
 const approve = async (id) => {
-
-    await approveDrive(id);
-
-    loadDrives();
-
+  await approveDrive(id);
+  await loadDrives();
 };
 
 const reject = async (id) => {
-
-    await rejectDrive(id);
-
-    loadDrives();
-
+  await rejectDrive(id);
+  await loadDrives();
 };
 
 const statusBadge = (status) => {
+  if (status === "approved") {
+    return "bg-success";
+  }
 
-    if (status === "approved")
-        return "bg-success";
+  if (status === "rejected") {
+    return "bg-danger";
+  }
 
-    if (status === "rejected")
-        return "bg-danger";
-
-    return "bg-warning text-dark";
-
+  return "bg-warning text-dark";
 };
+
+onMounted(loadDrives);
 </script>

@@ -44,7 +44,7 @@
             to="/student/drives"
             class="nav-link text-white"
           >
-            Browse Drives
+            Explore
           </router-link>
         </li>
 

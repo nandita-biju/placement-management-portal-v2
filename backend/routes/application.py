@@ -10,7 +10,7 @@ import io
 
 from flask import send_file
 
-from extensions import db
+from extensions import db, cache
 
 from models.student import Student
 from models.company import Company
@@ -28,6 +28,9 @@ application_bp = Blueprint(
     __name__
 )
 
+def my_applications_cache_key():
+    user_id = get_jwt_identity()
+    return f"my-applications:{user_id}"
 
 @application_bp.route("/apply/<int:job_id>", methods=["POST"])
 @jwt_required()
@@ -156,12 +159,33 @@ def get_my_applications():
 
         output.append({
             "application_id": application.id,
-            "company_name": application.job.company.company_name,
-            "job_title": application.job.title,
-            "status": application.status,
-            "applied_at": application.applied_at
-        })
 
+            "company_name": application.job.company.company_name,
+
+            "job_title": application.job.title,
+
+            "status": application.status,
+
+            "applied_at": application.applied_at,
+
+            "interview_status": application.interview_status,
+
+            "interview_date": (
+                application.interview_date.strftime("%Y-%m-%d")
+                if application.interview_date
+                else None
+            ),
+
+            "interview_time": (
+                application.interview_time.strftime("%H:%M")
+                if application.interview_time
+                else None
+            ),
+
+            "interview_mode": application.interview_mode,
+
+            "interview_location": application.interview_location
+        })
     return jsonify(output), 200
 
 
@@ -172,29 +196,12 @@ def update_application_status(application_id):
     claims = get_jwt()
 
     if claims["role"] != "company":
-        return jsonify({"message": "Access denied"}), 403
-
-    application = Application.query.get(application_id)
-
-    if not application:
-        return jsonify({"message": "Application not found"}), 404
-
-    user_id = int(get_jwt_identity())
-
-    company = Company.query.filter_by(user_id=user_id).first()
-
-    if not company:
-        return jsonify({"message": "Company profile not found"}), 404
-
-    if company.status == "blacklisted":
         return jsonify({
-            "message": "Blacklisted companies cannot update application status"
+            "message": "Access denied"
         }), 403
 
-    if application.job.company_id != company.id:
-        return jsonify({"message": "Unauthorized"}), 403
-
     data = request.get_json()
+    new_status = data.get("status")
 
     allowed_statuses = [
         "Applied",
@@ -203,17 +210,56 @@ def update_application_status(application_id):
         "Rejected"
     ]
 
-    if data["status"] not in allowed_statuses:
+    if new_status not in allowed_statuses:
         return jsonify({
             "message": "Invalid application status"
         }), 400
 
-    application.status = data["status"]
+    application = Application.query.get(application_id)
+
+    if not application:
+        return jsonify({
+            "message": "Application not found"
+        }), 404
+
+    user_id = int(get_jwt_identity())
+
+    company = Company.query.filter_by(
+        user_id=user_id
+    ).first()
+
+    if not company:
+        return jsonify({
+            "message": "Company profile not found"
+        }), 404
+
+    # Blacklisted companies cannot update results
+    if company.status == "blacklisted":
+        return jsonify({
+            "message": "Blacklisted companies cannot update application status"
+        }), 403
+
+    # Make sure application belongs to this company
+    if application.job.company_id != company.id:
+        return jsonify({
+            "message": "Unauthorized"
+        }), 403
+
+    # Student must have a scheduled interview before selection
+    if new_status == "Selected":
+
+        if application.interview_status != "Scheduled":
+            return jsonify({
+                "message": "Interview must be scheduled before selecting the student"
+            }), 400
+
+    application.status = new_status
 
     db.session.commit()
 
     return jsonify({
-        "message": "Application status updated successfully"
+        "message": "Application status updated successfully",
+        "status": application.status
     }), 200
 
 from tasks.export_tasks import export_student_applications
@@ -254,3 +300,5 @@ def export_status(task_id):
         return jsonify({"status": "Failed"})
 
     return jsonify({"status": task.state})
+
+

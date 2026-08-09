@@ -1,5 +1,5 @@
 <template>
-  <div class="container">
+  <div class="container mt-4">
 
     <div class="card shadow">
 
@@ -11,57 +11,94 @@
 
         <form @submit.prevent="createProfile">
 
+          <!-- Company Name -->
           <div class="mb-3">
             <label class="form-label">Company Name</label>
+
             <input
               v-model="profile.company_name"
+              type="text"
               class="form-control"
+              placeholder="e.g. Microsoft"
               required
             >
           </div>
 
+          <!-- Industry -->
           <div class="mb-3">
             <label class="form-label">Industry</label>
+
             <input
               v-model="profile.industry"
+              type="text"
               class="form-control"
+              placeholder="e.g. Information Technology"
             >
           </div>
 
+          <!-- Location -->
           <div class="mb-3">
             <label class="form-label">Location</label>
+
             <input
               v-model="profile.location"
+              type="text"
               class="form-control"
+              placeholder="e.g. Chennai"
             >
           </div>
 
+          <!-- HR Contact -->
+          <div class="mb-3">
+            <label class="form-label">HR Contact</label>
+
+            <input
+              v-model="profile.hr_contact"
+              type="text"
+              class="form-control"
+              placeholder="e.g. John Doe / +91 9876543210"
+            >
+          </div>
+
+          <!-- Website -->
           <div class="mb-3">
             <label class="form-label">Website</label>
+
             <input
               v-model="profile.website"
+              type="url"
               class="form-control"
               placeholder="https://example.com"
             >
           </div>
 
+          <!-- Buttons -->
           <div class="d-flex gap-2">
 
             <button
-              class="btn btn-success"
               type="submit"
+              class="btn btn-success"
+              :disabled="loading"
             >
-              Create Profile
+              {{ loading ? "Creating..." : "Create Profile" }}
             </button>
 
             <button
-              class="btn btn-secondary"
               type="button"
+              class="btn btn-secondary"
               @click="goBack"
             >
               Cancel
             </button>
 
+          </div>
+
+          <!-- Error -->
+          <div
+            v-if="errorMessage"
+            class="alert alert-danger mt-3"
+          >
+            {{ errorMessage }}
           </div>
 
         </form>
@@ -73,53 +110,84 @@
   </div>
 </template>
 
+
 <script setup>
+
 import { ref } from "vue";
 import { useRouter } from "vue-router";
-import { createCompanyProfile } from "../../services/companyService";
+import api from "../../api/axios";
+
 
 const router = useRouter();
 
+
 const profile = ref({
-    company_name: "",
-    industry: "",
-    location: "",
-    website: ""
+
+  company_name: "",
+  industry: "",
+  location: "",
+  hr_contact: "",
+  website: ""
+
 });
+
+
+const loading = ref(false);
+const errorMessage = ref("");
+
 
 const createProfile = async () => {
 
-    try {
+  loading.value = true;
+  errorMessage.value = "";
 
-        if (
-            profile.value.website &&
-            !profile.value.website.startsWith("http")
-        ) {
-            profile.value.website =
-                "https://" + profile.value.website;
-        }
+  try {
 
-        await createCompanyProfile(profile.value);
+    await api.post(
+      "/company/profile",
+      {
+        company_name: profile.value.company_name,
+        industry: profile.value.industry,
+        location: profile.value.location,
+        hr_contact: profile.value.hr_contact,
+        website: profile.value.website
+      }
+    );
 
-        alert("Company profile created successfully!");
+    alert("Company profile created successfully");
 
-        router.push("/company/profile");
+    router.push("/company/dashboard");
+
+  } catch (error) {
+
+    console.error("Create company profile error:", error);
+
+    if (error.response) {
+
+      errorMessage.value =
+        error.response.data?.message ||
+        "Failed to create company profile.";
+
+    } else {
+
+      errorMessage.value =
+        "Unable to connect to the backend.";
 
     }
 
-    catch (error) {
+  } finally {
 
-        alert(
-            error.response?.data?.message || error.message
-        );
+    loading.value = false;
 
-    }
+  }
 
 };
+
 
 const goBack = () => {
 
-    router.push("/company/profile");
+  router.back();
 
 };
+
 </script>

@@ -86,3 +86,39 @@ export const updateApplicationStatus = async (applicationId, status) => {
 
     return response.data;
 };
+
+
+export const getCompanyById = async (companyId) => {
+
+    const response = await api.get(
+        `/company/${companyId}`
+    );
+
+    return response.data;
+};
+
+export const scheduleInterview = async (
+    applicationId,
+    interviewData
+) => {
+
+    const response = await api.post(
+        `/company/applications/${applicationId}/interview`,
+        interviewData
+    );
+
+    return response.data;
+};
+
+export const getCompanyDashboard = async () => {
+  const response = await api.get(
+    "/company/dashboard",
+    {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`
+      }
+    }
+  );
+
+  return response.data;
+};

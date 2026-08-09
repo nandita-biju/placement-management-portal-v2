@@ -55,6 +55,15 @@
         </router-link>
       </li>
 
+      <li class="nav-item mb-2">
+        <router-link
+            to="/admin/reports"
+            class="nav-link text-white"
+        >
+            Reports & Statistics
+        </router-link>
+      </li>
+
       <li class="nav-item mt-4">
 
         <button

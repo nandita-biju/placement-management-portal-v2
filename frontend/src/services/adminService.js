@@ -113,3 +113,46 @@ export const getApplications = async () => {
     return response.data;
 
 };
+
+export const blacklistStudent = async (studentId) => {
+    const response = await api.put(
+        `/admin/blacklist-student/${studentId}`
+    );
+
+    return response.data;
+};
+
+export const unblacklistStudent = async (studentId) => {
+    const response = await api.put(
+        `/admin/unblacklist-student/${studentId}`
+    );
+
+    return response.data;
+};
+
+export const getReports = async () => {
+
+    const response = await api.get(
+        "/admin/reports"
+    );
+
+    return response.data;
+
+};
+
+export const getStudentPlacementHistory = async (studentId) => {
+  const response = await api.get(
+    `/admin/student/${studentId}/placement-history`
+  );
+
+  return response.data;
+};
+
+
+export const getCompanyDriveHistory = async (companyId) => {
+  const response = await api.get(
+    `/admin/company/${companyId}/drive-history`
+  );
+
+  return response.data;
+};

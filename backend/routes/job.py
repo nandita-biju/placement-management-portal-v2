@@ -7,7 +7,7 @@ from flask_jwt_extended import (
     get_jwt
 )
 
-from extensions import db
+from extensions import db, cache
 
 from models.company import Company
 from models.job import JobPosition
@@ -18,6 +18,9 @@ from datetime import datetime
 
 job_bp = Blueprint("job", __name__)
 
+def my_jobs_cache_key():
+    user_id = get_jwt_identity()
+    return f"my-jobs:{user_id}"
 
 @job_bp.route("/create", methods=["POST"])
 @jwt_required()
@@ -119,8 +122,11 @@ def get_all_jobs():
 
 @job_bp.route("/my-jobs", methods=["GET"])
 @jwt_required()
+@cache.cached(
+    timeout=300,
+    make_cache_key=my_jobs_cache_key
+)
 def get_my_jobs():
-
     claims = get_jwt()
 
     if claims["role"] != "company":
@@ -157,7 +163,10 @@ def get_my_jobs():
             "min_cgpa": job.min_cgpa,
             "eligible_graduation_year": job.eligible_graduation_year,
             "application_deadline": job.application_deadline.strftime("%Y-%m-%d") if job.application_deadline else None,
-            "status": job.status
+            "status": job.status,
+            "applicant_count": Application.query.filter_by(
+                job_id=job.id
+            ).count()
         })
 
     return jsonify(output), 200
@@ -204,15 +213,25 @@ def get_job_applications(job_id):
 
         output.append({
             "application_id": application.id,
-            "student_id": application.student.id,
+            "student_id": application.student_id,
             "student_name": application.student.full_name,
-            "education": application.student.education,
-            "skills": application.student.skills,
             "resume_link": application.student.resume_link,
-            "branch": application.student.branch,
-            "cgpa": application.student.cgpa,
-            "graduation_year": application.student.graduation_year,
-            "status": application.status
+
+            "status": application.status,
+
+            "interview_status": application.interview_status,
+            "interview_date": (
+                application.interview_date.strftime("%Y-%m-%d")
+                if application.interview_date
+                else None
+            ),
+            "interview_time": (
+                application.interview_time.strftime("%H:%M")
+                if application.interview_time
+                else None
+            ),
+            "interview_mode": application.interview_mode,
+            "interview_location": application.interview_location
         })
 
     return jsonify(output), 200

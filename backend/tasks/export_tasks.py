@@ -20,6 +20,7 @@ def export_student_applications(student_id):
     filepath = os.path.join(exports_dir, filename)
 
     headers = [
+        "Student ID",
         "Student Name",
         "Company Name",
         "Drive Title",
@@ -37,6 +38,7 @@ def export_student_applications(student_id):
             applied_date = app.applied_at.strftime("%Y-%m-%d %H:%M:%S") if app.applied_at else ""
 
             writer.writerow([
+                student.id,
                 student_name,
                 company_name,
                 drive_title,

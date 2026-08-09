@@ -32,6 +32,11 @@ class Student(db.Model):
         default=True
     )
 
+    status = db.Column(
+        db.String(20),
+        default="active"
+    )
+
     user = db.relationship("User", backref="student_profile")
 
 

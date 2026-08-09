@@ -96,12 +96,57 @@
           </div>
 
 
+          <!-- Resume Section -->
           <div class="mb-3">
-            <label class="form-label">Resume Link</label>
+
+            <label class="form-label">
+              Resume
+            </label>
+
+            <!-- Resume already uploaded -->
+            <div v-if="profile.resume_link" class="mb-2">
+
+              <span class="badge bg-success me-2">
+                ✅ Resume uploaded
+              </span>
+
+              <button
+                type="button"
+                class="btn btn-outline-primary btn-sm me-2"
+                @click="handleViewResume"
+              >
+                View Resume
+              </button>
+
+              <button
+                type="button"
+                class="btn btn-outline-danger btn-sm"
+                @click="handleDeleteResume"
+              >
+                Delete Resume
+              </button>
+
+            </div>
+
+            <!-- No resume -->
+            <div v-else class="mb-2">
+              <span class="text-muted">
+                No resume uploaded
+              </span>
+            </div>
+
+            <!-- Upload / Re-upload -->
             <input
-              v-model="profile.resume_link"
+              type="file"
               class="form-control"
+              accept=".pdf,application/pdf"
+              @change="handleResumeUpload"
             >
+
+            <small class="text-muted">
+              Only PDF files are allowed. {{ profile.resume_link ? 'Uploading a new file will replace the existing resume.' : '' }}
+            </small>
+
           </div>
 
           <div class="d-flex gap-2">
@@ -137,7 +182,10 @@ import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import {
     getProfile,
-    updateProfile
+    updateProfile,
+    uploadResume,
+    viewResume,
+    deleteResume
 } from "../../services/studentService";
 
 const router = useRouter();
@@ -166,6 +214,99 @@ const saveProfile = async () => {
 
         alert(
             error.response?.data?.message || error.message
+        );
+
+    }
+
+};
+
+const handleResumeUpload = async (event) => {
+
+    const file = event.target.files[0];
+
+    if (!file) {
+        return;
+    }
+
+    try {
+
+        const formData = new FormData();
+
+        formData.append("resume", file);
+
+        await uploadResume(formData);
+
+        alert("Resume uploaded successfully!");
+
+        profile.value = await getProfile();
+
+    }
+
+    catch (error) {
+
+        alert(
+            error.response?.data?.message ||
+            error.message
+        );
+
+    }
+};
+
+const handleViewResume = async () => {
+
+    try {
+
+        const response = await viewResume();
+
+        const blob = new Blob(
+            [response.data],
+            { type: "application/pdf" }
+        );
+
+        const fileURL = URL.createObjectURL(blob);
+
+        const newTab = window.open(fileURL, "_blank");
+
+        if (newTab) {
+            newTab.addEventListener("beforeunload", () => {
+                URL.revokeObjectURL(fileURL);
+            });
+        }
+
+    }
+
+    catch (error) {
+
+        alert(
+            error.response?.data?.message ||
+            "Unable to open resume"
+        );
+
+    }
+
+};
+
+const handleDeleteResume = async () => {
+
+    if (!confirm("Are you sure you want to delete your resume?")) {
+        return;
+    }
+
+    try {
+
+        await deleteResume();
+
+        alert("Resume deleted successfully!");
+
+        profile.value = await getProfile();
+
+    }
+
+    catch (error) {
+
+        alert(
+            error.response?.data?.message ||
+            error.message
         );
 
     }
