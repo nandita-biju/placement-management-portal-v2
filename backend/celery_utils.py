@@ -32,14 +32,14 @@ def make_celery(app):
 
         "daily-reminder-email": {
             "task": "tasks.reminder_tasks.send_daily_reminders",
-            "schedule": crontab(hour=9, minute=0),
+            "schedule": crontab(hour=13, minute=41),
         },
 
         "monthly-report": {
             "task": "tasks.report_tasks.send_monthly_report",
 
             # FOR TESTING ONLY
-            "schedule": crontab(hour=18, minute=35),
+            "schedule": crontab(hour=13, minute=39),
         },
 
     }

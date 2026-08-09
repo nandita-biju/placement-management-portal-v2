@@ -23,6 +23,6 @@ class Config:
     MAIL_USE_TLS = True
 
     MAIL_USERNAME = "placementportal217@gmail.com"
-    MAIL_PASSWORD = "xbsr cwji kcro teve"
+    MAIL_PASSWORD = "uyai nvii qfxd ndzb"
 
     MAIL_DEFAULT_SENDER = "placementportal217@gmail.com"

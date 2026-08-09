@@ -1,6 +1,7 @@
 from celery import shared_task
 from datetime import date, timedelta
 
+from flask import render_template
 from flask_mail import Message
 
 from extensions import mail
@@ -20,25 +21,34 @@ def send_daily_reminders():
         JobPosition.application_deadline == tomorrow
     ).all()
 
+    print(f"Found {len(jobs)} job(s) with deadline tomorrow ({tomorrow})")
+
     emails_sent = 0
+    errors = 0
 
     for job in jobs:
+
+        print(f"Processing job: {job.title} (ID: {job.id}, Branch: {job.eligible_branch}, Deadline: {job.application_deadline})")
 
         students = Student.query.filter_by(is_active=True).all()
 
         for student in students:
 
-            # Branch Eligibility
-            if student.branch != job.eligible_branch:
-                continue
+            # Branch Eligibility (match application route logic)
+            if job.eligible_branch and job.eligible_branch.strip().lower() not in ["all", "all branches"]:
+                student_branch = (student.branch or "").strip().lower()
+                if student_branch != job.eligible_branch.strip().lower():
+                    continue
 
             # CGPA Eligibility
-            if student.cgpa < job.min_cgpa:
-                continue
+            if job.min_cgpa is not None:
+                if student.cgpa is None or float(student.cgpa) < float(job.min_cgpa):
+                    continue
 
             # Graduation Year Eligibility
-            if student.graduation_year != job.eligible_graduation_year:
-                continue
+            if job.eligible_graduation_year is not None:
+                if student.graduation_year is None or int(student.graduation_year) != int(job.eligible_graduation_year):
+                    continue
 
             # Already Applied?
             already_applied = Application.query.filter_by(
@@ -52,29 +62,28 @@ def send_daily_reminders():
             if not student.user:
                 continue
 
-            msg = Message(
-                subject="Placement Drive Reminder",
-                recipients=[student.user.email]
-            )
+            try:
+                html = render_template(
+                    "reminder_email.html",
+                    student_name=student.full_name,
+                    company_name=job.company.company_name,
+                    job_title=job.title,
+                    deadline=job.application_deadline
+                )
 
-            msg.body = f"""
-Hello {student.full_name},
+                msg = Message(
+                    subject="Placement Drive Reminder",
+                    sender=("Placement Portal", "placementportal217@gmail.com"),
+                    recipients=[student.user.email],
+                    html=html
+                )
 
-A placement drive you are eligible for will close tomorrow.
+                mail.send(msg)
+                emails_sent += 1
+                print(f"Reminder sent to {student.user.email} for job {job.title}")
 
-Company : {job.company.company_name}
-Role    : {job.title}
-Deadline: {job.application_deadline}
+            except Exception as e:
+                errors += 1
+                print(f"ERROR sending to {student.user.email}: {e}")
 
-Since you satisfy the eligibility criteria, don't miss this opportunity.
-
-Visit the Placement Portal and apply before the deadline.
-
-Regards,
-Placement Portal
-"""
-
-            mail.send(msg)
-            emails_sent += 1
-
-    return f"{emails_sent} reminder emails sent."
+    return f"{emails_sent} reminder emails sent, {errors} errors."

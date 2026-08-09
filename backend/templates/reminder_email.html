@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Placement Drive Reminder</title>
+</head>
+
+<body style="font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px;">
+
+    <div style="max-width: 600px; margin: auto; background: white; padding: 25px; border-radius: 10px;">
+
+        <h2 style="text-align:center; color:#2c3e50;">
+            Placement Drive Reminder
+        </h2>
+
+        <p>Hello {{ student_name }},</p>
+
+        <p>
+            A placement drive you are eligible for will close <strong>tomorrow</strong>.
+            Don't miss this opportunity!
+        </p>
+
+        <table style="width:100%; border-collapse: collapse; margin-top:20px;">
+
+            <tr>
+                <td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>Company</strong></td>
+                <td style="padding: 8px; border-bottom: 1px solid #eee;">{{ company_name }}</td>
+            </tr>
+
+            <tr>
+                <td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>Role</strong></td>
+                <td style="padding: 8px; border-bottom: 1px solid #eee;">{{ job_title }}</td>
+            </tr>
+
+            <tr>
+                <td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>Application Deadline</strong></td>
+                <td style="padding: 8px; border-bottom: 1px solid #eee;">{{ deadline }}</td>
+            </tr>
+
+        </table>
+
+        <p style="margin-top: 20px;">
+            Since you satisfy the eligibility criteria, visit the Placement Portal and apply before the deadline.
+        </p>
+
+        <hr style="margin-top:30px;">
+
+        <p style="font-size:14px; color:gray;">
+            This is an automated reminder from the Placement Portal.
+        </p>
+
+    </div>
+
+</body>
+
+</html>
