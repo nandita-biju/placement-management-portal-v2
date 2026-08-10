@@ -351,7 +351,13 @@ const formatDate = (date) => {
     return "Not specified";
   }
 
-  return new Date(date).toLocaleDateString();
+  const d = new Date(date);
+
+  return d.toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "short",
+    year: "numeric"
+  });
 };
 
 const statusClass = (status) => {

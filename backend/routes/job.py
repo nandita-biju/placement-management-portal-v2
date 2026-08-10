@@ -219,6 +219,12 @@ def get_job_applications(job_id):
 
             "status": application.status,
 
+            "applied_at": (
+                application.applied_at.isoformat()
+                if application.applied_at
+                else None
+            ),
+
             "interview_status": application.interview_status,
             "interview_date": (
                 application.interview_date.strftime("%Y-%m-%d")

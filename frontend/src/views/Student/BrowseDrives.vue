@@ -128,17 +128,24 @@
           <button
             class="btn"
             :class="
-              getEligibilityStatus(drive).isEligible
-                ? 'btn-success'
-                : 'btn-secondary'
+              appliedJobIds.has(drive.id)
+                ? 'btn-secondary'
+                : getEligibilityStatus(drive).isEligible
+                  ? 'btn-success'
+                  : 'btn-secondary'
             "
-            :disabled="!getEligibilityStatus(drive).isEligible"
+            :disabled="
+              appliedJobIds.has(drive.id) ||
+              !getEligibilityStatus(drive).isEligible
+            "
             @click="apply(drive.id)"
           >
             {{
-              getEligibilityStatus(drive).isEligible
-                ? "Apply"
-                : "Not Eligible"
+              appliedJobIds.has(drive.id)
+                ? "Applied"
+                : getEligibilityStatus(drive).isEligible
+                  ? "Apply"
+                  : "Not Eligible"
             }}
           </button>
 
@@ -283,11 +290,14 @@ import {
   applyDrive
 } from "../../services/driveService";
 
+import { getMyApplications } from "../../services/studentService";
+
 import { getProfile } from "../../services/studentService";
 import { getCompanyById } from "../../services/companyService";
 
 const drives = ref([]);
 const studentProfile = ref(null);
+const appliedJobIds = ref(new Set());
 
 const search = ref("");
 const onlyEligible = ref(false);
@@ -307,6 +317,15 @@ onMounted(async () => {
     studentProfile.value = await getProfile();
   } catch (error) {
     console.log("No student profile found yet");
+  }
+
+  try {
+    const applications = await getMyApplications();
+    appliedJobIds.value = new Set(
+      applications.map((app) => app.job_id)
+    );
+  } catch (error) {
+    console.log("Could not fetch existing applications");
   }
 });
 
@@ -410,6 +429,11 @@ const filteredDrives = computed(() => {
 const apply = async (jobId) => {
   try {
     const response = await applyDrive(jobId);
+
+    appliedJobIds.value = new Set([
+      ...appliedJobIds.value,
+      jobId
+    ]);
 
     alert(response.message);
   } catch (error) {

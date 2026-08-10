@@ -160,6 +160,8 @@ def get_my_applications():
         output.append({
             "application_id": application.id,
 
+            "job_id": application.job_id,
+
             "company_name": application.job.company.company_name,
 
             "job_title": application.job.title,
